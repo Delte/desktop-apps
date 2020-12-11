@@ -1,8 +1,9 @@
 #include "cfilechecker.h"
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QStorageInfo>
+#include <QFileInfo>
 #include <QTextDocumentFragment>
+#include <QUrl>
 
 #include <QDebug>
 
@@ -28,12 +29,7 @@ CFileInspector::CFileInspector(QObject *parent, const QString& name, int uid)
 void CFileInspector::run()
 {
     int result = FILE_UNKNOWN;
-    QStorageInfo storage(QFileInfo(m_file).dir());
-#ifdef Q_OS_WIN
-    if (storage.device().startsWith("\\\\?\\")) {
-#else
-    if (storage.device().startsWith("/dev/")) {
-#endif
+    if (QUrl::fromUserInput(m_file).isLocalFile()) {
         if ( !isInterruptionRequested() ) {
             result = QFileInfo(m_file).exists() ? FILE_EXISTS : FILE_ABSENT;
         }
@@ -43,6 +39,11 @@ void CFileInspector::run()
 
     if ( !isInterruptionRequested() )
         emit examined(m_file, m_uid, result);
+}
+
+bool CFileInspector::isLocalFile(const QString& path)
+{
+    return QUrl::fromUserInput(path).isLocalFile();
 }
 
 /**/
@@ -158,5 +159,5 @@ bool CExistanceController::isFileRemote(const QString& path)
             return true;
     }
 
-    return false;
+    return !QUrl::fromUserInput(path).isLocalFile();
 }

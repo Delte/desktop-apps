@@ -51,13 +51,13 @@ public:
     explicit CMainWindow(const QRect&);
     ~CMainWindow();
 
-    void parseInputArgs(const QStringList&);
     CMainPanel * mainPanel() const;
     QRect windowRect() const;
     bool isMaximized() const;
     void sendSertificate(int viewid);
     QWidget * handle() const;
     void bringToTop() const override;
+    void show(bool maximized);
 
 protected:
     void closeEvent(QCloseEvent *);
@@ -80,6 +80,7 @@ signals:
 public slots:
     void slot_windowChangeState(Qt::WindowState);
     void slot_windowClose();
+    void slot_modalDialog(bool status, WId h);
 };
 
 #endif // CMAINWINDOW_H

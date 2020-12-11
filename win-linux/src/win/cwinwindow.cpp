@@ -55,12 +55,16 @@ LRESULT CALLBACK wndproc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_CLOSE: {
         HWND pwnd = GetWindow(hWnd, GW_OWNER);
-        if (pwnd) EnableWindow(pwnd, TRUE);
-        break;
-    }
+        if (pwnd) {
+            EnableWindow(pwnd, TRUE);
+            SetFocus(pwnd);
+        }
+
+        DestroyWindow(hWnd);
+        return 0; }
     case WM_DESTROY:
         PostQuitMessage(0);
-        break;
+        return 0;
     default:
         break;
     }
@@ -110,12 +114,16 @@ CWinWindow::CWinWindow(HWND parent, const QString& title)
         throw std::runtime_error("Couldn't register window class");
 }
 
-void CWinWindow::modal()
+void CWinWindow::modal(HWND fh)
 {
-    EnableWindow(m_hParent, FALSE);
-
     ShowWindow(m_hSelf, SW_SHOW);
     UpdateWindow(m_hSelf);
+    SetFocus(m_hSelf);
+
+    if ( fh )
+        SetFocus(fh);
+
+    EnableWindow(m_hParent, FALSE);
 
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0)) {

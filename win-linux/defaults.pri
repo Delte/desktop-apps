@@ -29,7 +29,8 @@ include($$CORE_ROOT_DIR/Common/base.pri)
 INCLUDEPATH += \
     $$BASEEDITORS_PATH/lib/include \
     $$BASEEDITORS_PATH/lib/qt_wrapper/include \
-    $$CORE_ROOT_DIR/DesktopEditor
+    $$CORE_ROOT_DIR/DesktopEditor \
+    $$CORE_ROOT_DIR/Common
 
 HEADERS += \
     $$PWD/src/asctabwidget.h \
@@ -41,6 +42,7 @@ HEADERS += \
     $$PWD/src/cprintprogress.h \
     $$PWD/src/ccefeventstransformer.h \
     $$PWD/src/cascapplicationmanagerwrapper.h \
+    $$PWD/src/cascapplicationmanagerwrapper_private.h \
     $$PWD/src/ctabbar.h \
     $$PWD/src/casctabdata.h \
     $$PWD/src/utils.h \
@@ -65,7 +67,8 @@ HEADERS += \
     $$PWD/src/ceditortools.h \
     $$PWD/src/cwindowsqueue.h \
     $$PWD/src/ceventdriver.h \
-    $$PWD/src/csvgpushbutton.h
+    $$PWD/src/csvgpushbutton.h \
+    $$PWD/src/cappupdater.h
 #    src/ctabbar_p.h \
 #    src/ctabstyle.h \
 #    src/ctabstyle_p.h
@@ -100,7 +103,8 @@ SOURCES += \
     $$PWD/src/ccefeventsgate.cpp \
     $$PWD/src/ceditortools.cpp \
     $$PWD/src/ceventdriver.cpp \
-    $$PWD/src/csvgpushbutton.cpp
+    $$PWD/src/csvgpushbutton.cpp \
+    $$PWD/src/cappupdater.cpp
 #    src/ctabstyle.cpp
 #    src/casclabel.cpp
 
@@ -131,7 +135,6 @@ core_windows {
 }
 core_linux:LIBS += -L$$CORE_3DPARTY_PATH/cef/$$PLATFORM_BUILD/build -lcef
 
-# core
 ADD_DEPENDENCY(PdfReader, PdfWriter, DjVuFile, XpsFile, HtmlRenderer, UnicodeConverter, hunspell, ooxmlsignature, kernel, graphics, videoplayer, ascdocumentscore, qtascdocumentscore)
 
 core_linux {

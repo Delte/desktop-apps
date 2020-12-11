@@ -53,8 +53,9 @@ public:
     CEditorWindow(const QRect& rect, CTabPanel* view);
     ~CEditorWindow();
 
+    void focus() override;
     bool holdView(int id) const override;
-    bool holdView(const wstring& portal) const;
+    bool holdView(const std::wstring& portal) const;
     void undock(bool maximized = false);
     int closeWindow();
     CTabPanel * mainView() const;
@@ -71,7 +72,7 @@ private:
 private:
     CEditorWindow(const QRect&, const QString&, QWidget *);
     QWidget * createMainPanel(QWidget * parent);
-    QWidget * createMainPanel(QWidget * parent, const QString& title, bool custom) override;
+    QWidget * createMainPanel(QWidget * parent, const QString& title) override;
     void recalculatePlaces();
     const QObject * receiver() override;
 
@@ -82,10 +83,15 @@ protected:
     void onSizeEvent(int) override;
     void onMoveEvent(const QRect&) override;
     void onExitSizeMove() override;
+    void onDpiChanged(int,int) override;
 
-    void setScreenScalingFactor(uint) override;
+    void setScreenScalingFactor(int) override;
+    int calcTitleCaptionWidth() override;
 
     void onLocalFileSaveAs(void *);
+
+private slots:
+    void onClickButtonHome();
 
 private:
     friend class CEditorWindowPrivate;

@@ -43,7 +43,7 @@ class CCefEventsGate : public QObject
 public:
     explicit CCefEventsGate(QObject *parent = nullptr);
 
-    void init(CTabPanel * const);
+    virtual void init(CTabPanel * const);
     CTabPanel * const panel()
     {
         return m_panel;
@@ -55,6 +55,7 @@ protected:
 public slots:
     virtual void onPortalLogout(std::wstring portal) = 0;
     virtual void onEditorConfig(int id, std::wstring cfg) = 0;
+    virtual void onEditorActionRequest(int, const QString&) = 0;
     virtual void onDocumentName(void *);
     virtual void onDocumentChanged(int id, bool changed);
     virtual void onDocumentSave(int id, bool cancel = false);
@@ -65,7 +66,7 @@ public slots:
     virtual void onDocumentPrint(int current, uint count) = 0;
     virtual void onDocumentLoadFinished(int);
     virtual void onDocumentReady(int);
-    virtual void onDocumentType(int, int type);
+    virtual void onDocumentType(int id, int type);
 
     virtual void onFileLocation(int id, QString path) = 0;
     virtual void onLocalFileSaveAs(void *) = 0;

@@ -59,19 +59,19 @@ public:
     void goStart();
     void focus();
     virtual void doOpenLocalFile(COpenOptions&);
-    void doOpenLocalFiles(const vector<wstring> *);
+    void doOpenLocalFiles(const std::vector<std::wstring> *);
     void doOpenLocalFiles(const QStringList&);
     void doOpenLocalFiles();
     void createLocalFile(const QString& name, int format);
     void setInputFiles(QStringList *);
     void setScreenScalingFactor(uchar);
+    void attachStartPanel(QCefView * const);
     bool holdUid(int) const;
     bool holdUrl(const QString&, AscEditorType) const;
+    int  tabCloseRequest(int index = -1);
     void toggleButtonMain(bool, bool delay = false);
     CAscTabWidget * tabWidget();
 
-    bool closeAll();
-    void loadStartPage();
     virtual void updateScaling(int);
 
 #ifdef __linux
@@ -117,6 +117,7 @@ public slots:
     virtual void onDocumentReady(int);
     void onDocumentType(int id, int type);
     void onDocumentName(void *);
+    void onEditorConfig(int, std::wstring cfg);
 
     void onDocumentChanged(int id, bool changed);
     void onDocumentSave(int id, bool cancel = false);
@@ -132,11 +133,10 @@ public slots:
     void onKeyDown(void *);
 
     virtual void onLocalOptions(const QString&){}
-//    virtual void onLocalFileOpen(const QString&);
     void onLocalFilesOpen(void *);
     void onLocalFileRecent(void *);
+    void onLocalFileRecent(const COpenOptions&);
     virtual void onLocalFileSaveAs(void *);
-    void onLocalFilesCheck(QString);
     void onLocalFileLocation(QString);
     void onFileLocation(int, QString);
     void onPortalOpen(QString);
@@ -148,28 +148,24 @@ public slots:
     void onEditorAllowedClose(int);
     void onWebTitleChanged(int, std::wstring json){}
 
-    void onFileChecked(const QString&, int, bool);
-
 protected:
     CAscTabWidget * m_pTabs;
     QPushButton*    m_pButtonMain;
     bool            m_isCustomWindow;
 
-    QString m_closeAct;
-
 private:
     std::wstring    m_sDownloadName;
 
-    QWidget*        m_pMainWidget;
+    QWidget*        m_pMainWidget = nullptr;
 
-    QPushButton*    m_pButtonMinimize;
-    QPushButton*    m_pButtonMaximize;
-    QPushButton*    m_pButtonClose;
+    QPushButton*    m_pButtonMinimize = nullptr;
+    QPushButton*    m_pButtonMaximize = nullptr;
+    QPushButton*    m_pButtonClose = nullptr;
     QPushButton*    m_pButtonProfile;
 
     QHBoxLayout *   m_layoutBtns;
     QWidget *       m_boxTitleBtns;
-    bool            m_isMaximized;
+    bool            m_isMaximized = false;
 
     CDownloadWidget *   m_pWidgetDownload = Q_NULLPTR;
 

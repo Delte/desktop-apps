@@ -154,15 +154,15 @@ function onNewFileClick(e) {
     if (me.click_lock===true) return;
     me.click_lock = true;
 
-    var t = -1;
+    var t;
     switch (e.currentTarget.attributes['action'].value) {
-    case 'new:docx': t = 0; break;
-    case 'new:xlsx': t = 2; break;
-    case 'new:pptx': t = 1; break;
+    case 'new:docx': t = 'word'; break;
+    case 'new:xlsx': t = 'cell'; break;
+    case 'new:pptx': t = 'slide'; break;
     default: break;
     }
 
-    createFile(t);
+    if ( !!t ) window.sdk.command("create:new", t);
 
     setTimeout(function(){
         me.click_lock = false;
@@ -195,22 +195,25 @@ window.sdk.on('on_native_message', function(cmd, param) {
     console.log(cmd, param);
 });
 
-function openFile(type, params) {
+function openFile(from, model) {
     if (window.sdk) {
-        if (type == OPEN_FILE_FOLDER) {
-            window.sdk.LocalFileOpen(params);
+        if (from == OPEN_FILE_FOLDER) {
+            window.sdk.command("open:folder", model);
         } else {
-            var _method = type == OPEN_FILE_RECOVERY ? 
-                            'LocalFileOpenRecover' : 'LocalFileOpenRecent';
+            const params = {
+                    id: model.fileid,
+                    path: model.path,
+                    type: model.type
+                };
 
-            window.sdk[_method](parseInt(params));
+            if ( from == OPEN_FILE_RECOVERY ) {
+                window.sdk.LocalFileOpenRecover(parseInt(params.id));
+                window.sdk.command("open:recovery", JSON.stringify(params));
+            } else {
+                window.sdk.LocalFileOpenRecent(parseInt(params.id));
+                window.sdk.command("open:recent", JSON.stringify(params));
+            }
         }
-    } 
-}
-
-function createFile(type) {
-    if (window.sdk) {
-        window.sdk["LocalFileCreate"](type);
     } 
 }
 

@@ -44,6 +44,157 @@
 
 #include "qcefview.h"
 
+#ifdef Q_OS_WIN
+# include <shobjidl.h>
+#endif
+#include <string>
+
+using namespace std;
+
+#ifdef Q_OS_WIN
+using VectorShellItems = vector<IShellItem *>;
+
+auto itemsFromItemArray(IShellItemArray * items)
+{
+    VectorShellItems out;
+    DWORD itemCount = 0;
+    if (FAILED(items->GetCount(&itemCount)) || itemCount == 0)
+        return out;
+
+    out.reserve(itemCount);
+    for (DWORD i = 0; i < itemCount; ++i) {
+        IShellItem * item = nullptr;
+        if (SUCCEEDED(items->GetItemAt(i, &item)))
+            out.push_back(item);
+    }
+
+    return out;
+}
+#endif
+
+class CFileDialogHelper {
+    using specvector = vector<pair<wstring,wstring>>;
+public:
+    struct CFileDialogOpenArguments {
+        CFileDialogOpenArguments(ParentHandle h, const wstring& t)
+            : parent(h)
+            , title(t)
+        {}
+
+        ParentHandle parent = nullptr;
+        wstring title;
+        wstring filter,
+                startFilter;
+        bool multiSelect = false;
+    };
+
+public:
+    static auto stringToFilters(const wstring& wstr) -> specvector {
+        specvector v;
+
+        if ( !wstr.empty() ) {
+            auto _parce_filter_string = [](const wstring& fullstr, size_t start, size_t stop) -> pair<wstring, wstring> {
+                wstring filter_name = fullstr.substr(start, stop - start);
+                size_t mid = filter_name.find(L"(") + 1;
+                wstring filter_pattern = filter_name.substr(mid, filter_name.find(L")", mid) - mid);
+
+                std::replace(begin(filter_pattern), end(filter_pattern), ' ', ';');
+                return make_pair(filter_name, filter_pattern);
+            };
+
+            wstring _delim = L";;";
+            size_t _curr = wstr.find(_delim),
+                _prev = 0;
+            while ( _curr != wstring::npos ) {
+                v.push_back(_parce_filter_string(wstr,_prev,_curr));
+
+                _prev = _curr + 2;
+                _curr = wstr.find(_delim, _prev);
+            }
+
+            v.push_back(_parce_filter_string(wstr, _prev, wstr.size()));
+        }
+
+        return v;
+    }
+
+    static auto nativeOpenDialog(const CFileDialogOpenArguments& args, bool& isSupport) -> QStringList {
+        QStringList out;
+
+#ifdef Q_OS_WIN
+        isSupport = false;
+        HRESULT hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+        if ( SUCCEEDED(hr) ) {
+            IFileOpenDialog * pDialog = nullptr;
+
+            // Create the FileOpenDialog object.
+            hr = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_IFileOpenDialog, reinterpret_cast<void**>(&pDialog));
+
+            if (SUCCEEDED(hr)) {
+                isSupport = true;
+                hr = pDialog->SetTitle(args.title.c_str());
+
+                specvector filters{stringToFilters(args.filter)};
+
+                uint typeIndex = 1;
+                COMDLG_FILTERSPEC * specOpenTypes = new COMDLG_FILTERSPEC[filters.size()];
+                for (uint i{0}; i < filters.size(); ++i) {
+                    specvector::const_reference iter = filters.at(i);
+                    specOpenTypes[i] = {iter.first.c_str(), iter.second.c_str()};
+
+                    if ( !args.startFilter.empty() &&
+                            iter.first.find(args.startFilter) == 0 )
+                        typeIndex = i + 1;
+                }
+
+                hr = pDialog->SetFileTypes(filters.size(), specOpenTypes);
+                delete [] specOpenTypes;
+
+                pDialog->SetFileTypeIndex(typeIndex);
+
+                DWORD dwFlags;
+                hr = pDialog->GetOptions(&dwFlags);
+                if (SUCCEEDED(hr)) {
+                    if ( args.multiSelect ) dwFlags |= FOS_ALLOWMULTISELECT;
+
+                    QSettings _r("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", QSettings::NativeFormat);
+                    if ( _r.value("Hidden", 1) == 1 )
+                        dwFlags |= FOS_FORCESHOWHIDDEN;
+
+                    hr = pDialog->SetOptions(dwFlags | FOS_FILEMUSTEXIST | FOS_PATHMUSTEXIST);
+                }
+
+                hr = pDialog->Show(args.parent);
+                if (SUCCEEDED(hr)) {
+                    IShellItemArray * items = nullptr;
+                    hr = pDialog->GetResults(&items);
+                    if (SUCCEEDED(hr) && items) {
+                        VectorShellItems iarray = itemsFromItemArray(items);
+                        for (IShellItem * item : iarray) {
+                            PWSTR pszFilePath;
+                            hr = item->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+                            if (SUCCEEDED(hr)) {
+                                out.append(QString::fromStdWString(pszFilePath));
+                                CoTaskMemFree(pszFilePath);
+                            }
+                        }
+
+                        for (IShellItem * item : iarray)
+                            item->Release();
+                        items->Release();
+                    }
+                }
+                pDialog->Release();
+            }
+            CoUninitialize();
+        }
+#else
+#endif
+
+        return out;
+    }
+};
+
 #if defined(_WIN32)
 CFileDialogWrapper::CFileDialogWrapper(HWND hParentWnd) : QWinWidget(hParentWnd)
 #else
@@ -121,7 +272,8 @@ bool CFileDialogWrapper::modalSaveAs(QString& fileName)
                                     fileName.left(fileName.lastIndexOf(".")) : fileName;
 
     HWND _mess_parent = QWinWidget::parentWindow();
-    CRunningEventHelper _event(&(CInAppEventModal((size_t)_mess_parent)));
+    CInAppEventModal _event(_mess_parent);
+    CRunningEventHelper _h(&_event);
 #else
     QString _croped_name = fileName.left(fileName.lastIndexOf("."));
     QWidget * _mess_parent = (QWidget *)parent();
@@ -148,7 +300,7 @@ bool CFileDialogWrapper::modalSaveAs(QString& fileName)
 #endif
 
 #ifndef _WIN32
-    WindowUtils::CParentDisable oDisabler(qobject_cast<QWidget*>(parent()));
+    WindowHelper::CParentDisable oDisabler(qobject_cast<QWidget*>(parent()));
 #endif
 
     while (true) {
@@ -210,7 +362,7 @@ QStringList CFileDialogWrapper::modalOpen(const QString& path, const QString& fi
     if ( _filter_.isEmpty() ) {
 //        _filter_ = joinFilters();
         _filter_ = m_mapFilters[AVS_OFFICESTUDIO_FILE_UNKNOWN] + ";;" +
-                    tr("Text documents") + " (*.docx *.doc *.odt *.ott *.rtf *.docm *.dotx *.dotm *.fodt *.wps *.wpt *.xml);;" +
+                    tr("Text documents") + " (*.docx *.doc *.odt *.ott *.rtf *.docm *.dotx *.dotm *.fodt *.wps *.wpt *.xml *.pdf *.epub *.djv *.djvu);;" +
                     tr("Spreadsheets") + " (*.xlsx *.xls *.ods *.ots *.csv *.xltx *.xltm *.fods *.et *.ett);;" +
                     tr("Presentations") + " (*.pptx *.ppt *.odp *.otp *.ppsm *.ppsx *.potx *.potm *.fodp *.dps *.dpt);;" +
                     tr("Web Page") + " (*.html *.htm *.mht);;" +
@@ -238,13 +390,27 @@ QStringList CFileDialogWrapper::modalOpen(const QString& path, const QString& fi
 #endif
 
 #ifndef _WIN32
-    WindowUtils::CParentDisable oDisabler(qobject_cast<QWidget*>(parent()));
-#else
-    CRunningEventHelper _event(&(CInAppEventModal((size_t)QWinWidget::parentWindow())));
-#endif
+    WindowHelper::CParentDisable oDisabler(qobject_cast<QWidget*>(parent()));
 
     return multi ? QFileDialog::getOpenFileNames(_parent, tr("Open Document"), path, _filter_, &_sel_filter, _opts) :
-            QStringList(QFileDialog::getOpenFileName(_parent, tr("Open Document"), path, _filter_, &_sel_filter, _opts));
+                QStringList(QFileDialog::getOpenFileName(_parent, tr("Open Document"), path, _filter_, &_sel_filter, _opts));
+#else
+    CInAppEventModal event_(QWinWidget::parentWindow());
+    CRunningEventHelper h_(&event_);
+
+    CFileDialogHelper::CFileDialogOpenArguments args{(HWND)_parent->winId(),tr("Open Document").toStdWString()};
+    args.filter = _filter_.toStdWString();
+    args.startFilter = _sel_filter.toStdWString();
+    args.multiSelect = multi;
+
+    bool isSupportNative = false;
+    QStringList retFiles = CFileDialogHelper::nativeOpenDialog(args, isSupportNative);
+    if (isSupportNative)
+        return retFiles;
+
+    return multi ? QFileDialog::getOpenFileNames(_parent, tr("Open Document"), path, _filter_, &_sel_filter, _opts) :
+                QStringList(QFileDialog::getOpenFileName(_parent, tr("Open Document"), path, _filter_, &_sel_filter, _opts));
+#endif
 }
 
 QString CFileDialogWrapper::modalOpenSingle(const QString& path, const QString& filter, QString * selected)
@@ -255,18 +421,20 @@ QString CFileDialogWrapper::modalOpenSingle(const QString& path, const QString& 
 
 QStringList CFileDialogWrapper::modalOpenImage(const QString& path)
 {
+    QString selected = tr("All Images") + " (*.jpeg *.jpg *.png *.gif *.bmp)";
     QString filter = m_mapFilters[AVS_OFFICESTUDIO_FILE_UNKNOWN];
-    filter.prepend(tr("Jpeg (*.jpeg *.jpg);;Png (*.png);;Gif (*.gif);;Bmp (*.bmp);;"));
+    filter.append(";;" + selected + ";;" + tr("Jpeg (*.jpeg *.jpg);;Png (*.png);;Gif (*.gif);;Bmp (*.bmp)"));
 
-    return modalOpen(path, filter, nullptr, false);
+    return modalOpen(path, filter, &selected, false);
 }
 
 QStringList CFileDialogWrapper::modalOpenImages(const QString& path)
 {
+    QString selected = tr("All Images") + " (*.jpeg *.jpg *.png *.gif *.bmp)";
     QString filter = m_mapFilters[AVS_OFFICESTUDIO_FILE_UNKNOWN];
-    filter.prepend(tr("Jpeg (*.jpeg *.jpg);;Png (*.png);;Gif (*.gif);;Bmp (*.bmp);;"));
+    filter.append(";;" + selected + ";;" + tr("Jpeg (*.jpeg *.jpg);;Png (*.png);;Gif (*.gif);;Bmp (*.bmp)"));
 
-    return modalOpen(path, filter,  nullptr, true);
+    return modalOpen(path, filter, &selected, true);
 }
 
 QStringList CFileDialogWrapper::modalOpenPlugin(const QString& path)
@@ -319,15 +487,19 @@ QStringList CFileDialogWrapper::modalOpenAny(const QString& path, bool multi)
 
 QStringList CFileDialogWrapper::modalOpenMedia(const QString& type, const QString& path, bool multi)
 {
-    QString filter = m_mapFilters[AVS_OFFICESTUDIO_FILE_UNKNOWN];
+    QString selected, extra;
     if ( type == "video" ) {
-        filter.prepend(tr("Video file") + " (*.webm *.mkv *.flv *.ogg *.avi *.mov *.wmv *.mp4 *.m4v *.mpg *.mp2 *.mpeg *.mpe *.mpv *.m2v *.m4v *.3gp *.3g2 *.f4v *.m2ts *.mts);;");
+        selected = tr("Video file") + " (*.mp4 *.mkv *.avi *.mpg *.mpeg *.mpe *.mpv *.mov *.wmv *.m2v *.m4v *.webm *.ogg *.f4v *.m2ts *.mts)";
+        extra = "Avi (*.avi);;Mpeg (*.mpg *.mpeg *.mpe *.mpv *.m2v *.m4v *.mp4);;Mkv (*.mkv);;Mts (*.m2ts *.mts);;Webm (*.webm);;Mov (*.mov)"
+                                      ";;Wmv (*.wmv);;F4v (*.f4v);;Ogg (*.ogg)";
     } else
     if ( type == "audio" ) {
-        filter.prepend(tr("Audio file") + " (*.flac *.mp3 *.ogg *.wav *.wma *.ape *.aac *.m4a *.alac);;");
+        selected = tr("Audio file") + " (*.mp3 *.mp2 *.ogg *.wav *.wma *.flac *.ape *.aac *.m4a)";
+        extra = "Mp3 (*.mp3);;Mp2 (*.mp2);;Wav (*.wav);;Flac (*.flac);;Wma (*.wma);;Ogg (*.ogg);;Ape (*.ape);;Aac (*.aac);;M4a (*.m4a)";
     }
 
-    return modalOpen(path, filter, nullptr, multi);
+    QString filter = m_mapFilters[AVS_OFFICESTUDIO_FILE_UNKNOWN] + ";;" + selected + ";;" + extra;
+    return modalOpen(path, filter, &selected, multi);
 }
 
 void CFileDialogWrapper::setFormats(std::vector<int>& vf)

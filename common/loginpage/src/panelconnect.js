@@ -134,6 +134,16 @@
                       </div>
                     </div>`;
 
+        config.portals.checklist.forEach(item => {
+            if ( !!item.icon && !!item.icon.providerbutton ) {
+                const _re = new RegExp(`data-cprov='${item.id}'[\\s\\S]+?(?=<svg)(<svg.+<\/svg>)`);
+                const _match = _re.exec(_html);
+                if ( _match && !!_match[1] ) {
+                    _html = _html.replace(_match[1], `<img class='icon' src='${item.icon.providerbutton}'></img>`);
+                }
+            }
+        });
+
         args.tplPage = _html;
         args.menu = '.main-column.tool-menu';
         args.field = '.main-column.col-center';
@@ -155,7 +165,7 @@
         },
         portaltemplate: function(info, edit) {
             let _row = `<td class="row-cell cicon">
-                            <svg class='icon'><use href='#${info.icon}'></svg>
+                            <svg class='icon'><use href='#${info.iconid}'></svg>
                         </td>
                         <td class="row-cell">
                             <p class="cportal primary">${utils.skipUrlProtocol(info.portal)}</p>
@@ -166,6 +176,11 @@
                               <button class="btn-quick logout img-el" tooltip="${utils.Lang.menuLogout}"></button>
                             </span>
                         </td>`;
+
+            if ( !!info.iconsrc ) {
+                _row = _row.replace(/<svg.+<\/svg>/, `<img class='icon' src='${info.iconsrc}'></img>`);
+            }
+
             return edit===true ? _row : `<tr id=${info.elid}>${_row}</tr>`;
         }
     });
@@ -179,16 +194,16 @@
         function _on_context_menu(menu, action, data) {
             var model = data;
             if (/\:open/.test(action)) {
-                model.logged ?
-                    window.sdk.execCommand("portal:open", JSON.stringify({portal: model.path, provider:model.provider})) :
-                        _do_connect(model);
+                // model.logged ?
+                    sdk.command("portal:open", JSON.stringify({portal: model.path, provider:model.provider}));
+                        // _do_connect(model);
             } else
             if (/\:logout/.test(action)) {
-                _do_logout.call(this, model.path);
+                _do_logout.call(this, model);
             } else
             if (/\:forget/.test(action)) {
                 model.removed = true;
-                _do_logout.call(this, model.path);
+                _do_logout.call(this, model);
             }
         };
 
@@ -262,11 +277,11 @@
             }
         };
 
-        function _do_logout(info) {
+        function _do_logout(model) {
             // var model = portalCollection.find('name', info);
             // model && model.set('logged', false);
 
-            window.sdk.execCommand("portal:logout", info);
+            window.sdk.execCommand('portal:logout', JSON.stringify({domain:model.path}));
         };
 
         function _update_portals() {
@@ -309,6 +324,11 @@
                     }
                 };
 
+                function _get_icon_scr(provider) {
+                    let _model = config.portals.checklist.find(e => {return e.provider == provider;})
+                    return !!_model && !!_model.icon ? _model.icon.connectionlist : undefined;
+                };
+
                 collection.events.changed.attach((collection, model, value) => {
                     if ( !!value ) {
                         if ( value.logged != undefined )
@@ -319,9 +339,14 @@
                             el.html(
                                 $(this.view.portaltemplate({
                                     portal: model.name,
-                                    icon: _create_icon_id(model.provider),
+                                    iconid: _create_icon_id(model.provider),
+                                    iconsrc: _get_icon_scr(model.provider),
                                     user: model.user,
                                     email: model.email}, true)));
+                        } else
+                        if ( value.removed != undefined ) {
+                            value.removed ? $('#' + model.uid, this.view.$panelPortalList).addClass('lost') :
+                                    $('#' + model.uid, this.view.$panelPortalList).removeClass('lost');
                         }
                     }
                 });
@@ -330,13 +355,14 @@
                     let $listPortals = collection.view.find('.table-files.list');
                     let $item = $(this.view.portaltemplate({
                         portal: model.name,
-                        icon: _create_icon_id(model.provider),
+                        iconid: _create_icon_id(model.provider),
+                        iconsrc: _get_icon_scr(model.provider),
                         user: model.user,
                         email: model.email,
                         elid: model.uid
                     }));
                     
-                    $item.find('.logout').click(model.path, e => {
+                    $item.find('.logout').click(model, e => {
                         _do_logout(e.data);
 
                         e.stopPropagation && e.stopPropagation();
@@ -347,8 +373,11 @@
                 });
 
                 collection.events.click.attach((collection, model)=>{
+                    let _pm = config.portals.checklist.find(e => e.provider == model.provider),
+                        _portal_start_page = '/';
+                    if ( _pm ) _portal_start_page = _pm.startPage;
                     // !model.logged ? _do_connect.call(this, model) :
-                        sdk.command("portal:open", JSON.stringify({provider:model.provider, portal:model.path}));
+                        sdk.command("portal:open", JSON.stringify({provider:model.provider, portal:model.path, entrypage:_portal_start_page}));
                 });
 
                 collection.events.contextmenu.attach((collection, model, e)=>{
@@ -383,11 +412,13 @@
                 if (model) {
                     model.set('logged', false)
 
-                    let _is_logged = obj[i].length > 0;
-                    if ( _is_logged ) {
-                        (new DialogConnect).portalexists(model.path, model.provider)
-                            .then( data => { data.status == 'success' && model.set('logged', true); } );
-                    }
+                    const _is_logged = obj[i].length > 0;
+                    (new DialogConnect).portalexists(model.path, model.provider)
+                            .then(data => {
+                                data.status == 'success' && _is_logged && model.set('logged', true); 
+                            }, error => {
+                                $('#' + model.uid, this.view.$panelPortalList).toggleClass('unavail', true);
+                            });
                 }
             };
         };
@@ -405,7 +436,7 @@
                 sdk.setCookie(portal, _domain, _re[3] || '/', "asc_auth_key", utils.fn.uuid());
             };
 
-            let obj = JSON.parse(utils.fn.decodeHtml(info));
+            let obj = JSON.parse(info);
             if ( obj ) {
                 var model = collection.find('name', utils.skipUrlProtocol(obj.domain));
                 if ( model ) {
@@ -413,7 +444,18 @@
                     if ( model.email == obj.email ) {
                         if ( !model.get('logged') ) {
                             model.set('logged', true);
-                            _write_portal_cookie(obj.domain);
+                            if (model.provider != 'asc')
+                                _write_portal_cookie(obj.domain);
+
+                            if ( model.get('removed') ) {
+                                model.set('removed', false);
+                                PortalsStore.keep({
+                                    portal: model.path,
+                                    provider: model.provider,
+                                    user: model.user,
+                                    email: model.email
+                                });
+                            }
 
                             if ( model.get('user') != obj.displayName ) {
                                 model.set('user', obj.displayName);
@@ -434,9 +476,9 @@
 
                 let _p;
                 !obj.provider && (obj.provider = 'asc');
-                if ( !config.portals.checklist.find(i => i.id == obj.provider) &&
+                if ( !config.portals.checklist.find(i => i.provider == obj.provider) &&
                             (_p = config.portals.checklist.find(i => i.name.toLowerCase() == obj.provider.toLowerCase())) )
-                    obj.provider = _p.id;
+                    obj.provider = _p.provider;
 
                 let info = {
                     portal: obj.domain,
@@ -468,7 +510,7 @@
                 if ( params.includes('\"portals\"\:') ) {
                     let opts;
                     try {
-                        opts = JSON.parse( utils.fn.decodeHtml(params) );
+                        opts = JSON.parse(params);
                     } catch (e) { /*delete opts;*/ }
 
                     if ( opts && opts.portals && opts.portals.auth_use_api ) {
@@ -518,6 +560,12 @@
             carousel.$items = _$panel.find('.carousel__slide');
             let _activeindex = carousel.$items.filter('.active').index();
 
+            if ( !(navigator.userAgent.indexOf("Windows NT 5.") < 0) ||
+                    !(navigator.userAgent.indexOf("Windows NT 6.0") < 0) )
+            {
+                $('.carousel', _$panel).addClass('winxp');
+            }
+
             let _pre_index = _activeindex - 1,
                 _pro_index = _activeindex + 1;
 
@@ -530,6 +578,10 @@
                 .on('click', e => {
                     _scrollCarousel(e.target.getAttribute('value'));
                 });
+        };
+
+        function _on_lang_changed(ol,nl) {
+            $('.btn-quick.logout',this.$panelPortalList).attr('tooltip',utils.Lang.menuLogout);
         };
 
         return {
@@ -549,8 +601,8 @@
                             if (!res[1]) {
                                 model.set('logged', false);
                                 if ( model.removed ) {
+                                    model.set('removed', true);
                                     PortalsStore.forget(param);
-                                    _update_portals.call(this);
                                 }
                             } else
                                 delete model.removed;
@@ -575,6 +627,7 @@
                 });
 
                 window.CommonEvents.on('portal:create', _on_create_portal);
+                window.CommonEvents.on('lang:changed', _on_lang_changed);
 
                 return this;
             },

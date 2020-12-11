@@ -1,4 +1,4 @@
-﻿;-- Common --
+﻿; -- Installer Common --
 
 #if str(_ARCH) == "64"
   #define sWinArch                  "x64"
@@ -18,87 +18,21 @@
 #ifndef sBrandingFolder
   #define sBrandingFolder           "..\..\.."
 #endif
+
+#include sBrandingFolder + "\win-linux\package\windows\defines.iss"
+
+#ifndef sAppVersion
+  #define sAppVersion             GetFileVersion(AddBackslash(DEPLOY_PATH) + NAME_EXE_OUT)
+#endif
+#define sAppVerShort                Copy(sAppVersion, 0, 3)
+
+#ifndef sOutputFileName
+  #define sOutputFileName           str(sPackageName + "_" + sAppVersion + "_" + sWinArchFull)
+#endif
+
 #define sBrandingFile               sBrandingFolder + "\win-linux\package\windows\branding.iss"
 #if FileExists(sBrandingFile)
   #include sBrandingFile
-#endif
-
-#ifndef sCompanyName
-  #define sCompanyName              "ONLYOFFICE"
-#endif
-#ifndef sIntCompanyName
-  #define sIntCompanyName           sCompanyName
-#endif
-#ifndef sProductName
-  #define sProductName              "Desktop Editors"
-#endif
-#ifndef sIntProductName
-  #define sIntProductName           "DesktopEditors"
-#endif
-#ifndef sAppName
-  #define sAppName                  sCompanyName + " " + sProductName
-#endif
-#ifndef sAppPublisher
-  #define sAppPublisher             "Ascensio System SIA"
-#endif
-#ifndef sAppPublisherURL
-  #define sAppPublisherURL          "https://www.onlyoffice.com/"
-#endif
-#ifndef sAppSupportURL
-  #define sAppSupportURL            "https://www.onlyoffice.com/support.aspx"
-#endif
-#ifndef sAppCopyright
-  #define sAppCopyright             str("Copyright (C) " + GetDateTimeString('yyyy',,) + " " + sAppPublisher)
-#endif
-#ifndef sAppIconName
-  #define sAppIconName              "ONLYOFFICE Editors"
-#endif
-
-#ifndef APP_PATH
-  #define APP_PATH                  sIntCompanyName + "\" + sIntProductName
-#endif
-#ifndef APP_REG_PATH
-  #define APP_REG_PATH              "Software\" + APP_PATH
-#endif
-#ifndef DEPLOY_PATH
-  #define DEPLOY_PATH               "..\..\..\..\build_tools\out\" + sPlatformFull + "\" + APP_PATH
-#endif
-#ifndef APP_USER_MODEL_ID
-  #define APP_USER_MODEL_ID         "ASC.Documents.5"
-#endif
-#ifndef APP_MUTEX_NAME
-  #define APP_MUTEX_NAME            "TEAMLAB"
-#endif
-#ifndef APPWND_CLASS_NAME
-  #define APPWND_CLASS_NAME         "DocEditorsWindowClass"
-#endif
-
-#ifndef iconsExe
-  #define iconsExe                  "DesktopEditors.exe"
-#endif
-#ifndef NAME_EXE_IN
-  #define NAME_EXE_IN               "DesktopEditors_" + sWinArch + ".exe"
-#endif
-#ifndef NAME_EXE_OUT
-  #define NAME_EXE_OUT              "editors.exe"
-#endif
-#define VISEFFECTS_MANIFEST_NAME    ChangeFileExt(iconsExe, "VisualElementsManifest.xml")
-#ifndef LIC_FILE
-  #define LIC_FILE                  "agpl-3.0"
-#endif
-
-#ifndef SCRIPT_CUSTOM_FILES
-#  define sAppVersion         GetFileVersion(AddBackslash(SourcePath) + '..\..\Build\Release\' + NAME_EXE_IN)
-  #ifndef sAppVersion
-    #define sAppVersion             "0.0.0.0"
-  #endif
-#else
-  #define sAppVersion               GetFileVersion(AddBackslash(DEPLOY_PATH) + NAME_EXE_OUT)
-#endif
-#define sAppVerShort        Copy(sAppVersion, 0, 3)
-
-#ifndef sOutputFileName
-  #define sOutputFileName           {#sIntCompanyName}_{#sIntProductName}_{#sAppVersion}_{#sWinArchFull}
 #endif
 
 #include "utils.iss"
@@ -133,6 +67,7 @@ DisableDirPage            = auto
 AllowNoIcons              = yes
 AlwaysShowDirOnReadyPage  = yes
 UninstallDisplayIcon      = {app}\app.ico
+UninstallDisplayName      = {#sAppName} {#sAppVerShort} ({#sWinArch})
 OutputDir                 =.\
 Compression               =lzma
 PrivilegesRequired        =admin
@@ -505,7 +440,7 @@ var
 begin
   if Length(LabelCaption) > 0 then WizardForm.StatusLabel.Caption := LabelCaption;
 
-  Params := '/quiet';
+  Params := '/quiet /norestart';
 
   ShellExec('', FileName, Params, '', SW_SHOW, ewWaitUntilTerminated, ErrorCode);
 
@@ -617,112 +552,17 @@ Source: {#sBrandingFolder}\win-linux\package\windows\data\VisualElementsManifest
 Source: {#sBrandingFolder}\win-linux\package\windows\data\visual_elements_icon_150x150.png;  DestDir: {app}\browser;   MinVersion: 6.3;
 Source: {#sBrandingFolder}\win-linux\package\windows\data\visual_elements_icon_71x71.png;    DestDir: {app}\browser;   MinVersion: 6.3;
 
-#ifndef SCRIPT_CUSTOM_FILES
-
-Source: ..\..\deploy\{#sPlatform}\3dparty\Qt\*;                 DestDir: {app}; Flags: ignoreversion recursesubdirs;
-
-Source: data\projicons.exe;                                     DestDir: {app}; DestName: {#iconsExe};
-Source: ..\..\build\Release\{#NAME_EXE_IN};                     DestDir: {app}; DestName: {#NAME_EXE_OUT};
-
-Source: {#sBrandingFolder}\win-linux\extras\projicons\res\icons\desktopeditors.ico;  DestDir: {app}; DestName: app.ico;
-Source: ..\..\..\common\loginpage\deploy\index.html;            DestDir: {app}; DestName: index.html;
-Source: {#sBrandingFolder}\common\package\license\{#LIC_FILE}.htm;         DestDir: {app}; DestName: LICENSE.htm;
-Source: {#sBrandingFolder}\common\package\license\3dparty\3DPARTYLICENSE;  DestDir: {app};
-;Source: data\webdata\cloud\*;                      DestDir: {commonappdata}\{#APP_PATH}\webdata\cloud; Flags: recursesubdirs;
-;Source: ..\..\common\loginpage\deploy\*;           DestDir: {commonappdata}\{#APP_PATH}\webdata\local;
-Source: ..\..\..\..\dictionaries\*;                             DestDir: {app}\dictionaries; Flags: recursesubdirs;
-
-Source: ..\..\..\..\core\build\jsdesktop\web-apps\*;            DestDir: {app}\editors\web-apps;      Flags: recursesubdirs;
-Source: ..\..\..\..\core\build\jsdesktop\sdkjs\*;               DestDir: {app}\editors\sdkjs;         Flags: recursesubdirs;
-Source: ..\..\..\..\core\build\jsdesktop\sdkjs-plugins\*;       DestDir: {app}\editors\sdkjs-plugins; Flags: recursesubdirs;
-Source: ..\..\..\common\loginpage\addon\externalcloud.json;     DestDir: {app}\editors;               Flags: recursesubdirs;
-Source: ..\..\..\common\converter\empty\*;                      DestDir: {app}\converter\empty;       Flags: recursesubdirs;
-;Source: ..\..\..\common\converter\empty\ru-RU\*.*;              DestDir: {app}\converter\empty\ru;
-;Source: ..\..\..\common\converter\empty\fr-FR\*.*;              DestDir: {app}\converter\empty\fr;
-;Source: ..\..\..\common\converter\empty\es-ES\*.*;              DestDir: {app}\converter\empty\es;
-;Source: ..\..\..\common\converter\empty\de-DE\*.*;              DestDir: {app}\converter\empty\de;
-;Source: ..\..\..\common\converter\empty\cs-CZ\*.*;              DestDir: {app}\converter\empty\cs;
-;Source: ..\..\..\common\converter\empty\it-IT\*.*;              DestDir: {app}\converter\empty\it-IT;
-;Source: ..\..\..\common\converter\empty\pt-BR\*.*;              DestDir: {app}\converter\empty\pt-BR;
-Source: ..\..\..\common\converter\DoctRenderer.config;          DestDir: {app}\converter;
-
-Source: ..\..\deploy\{#sPlatform}\libs\*; DestDir: {app}\converter; Excludes: *.lib,*.exp,*.exe,ascdocumentscore.dll,ooxmlsignature.dll,hunspell.dll; Flags: ignoreversion;
-
-Source: ..\..\deploy\{#sPlatform}\libs\HtmlFileInternal.exe;      DestDir: {app}; Flags: ignoreversion;
-Source: ..\..\deploy\{#sPlatform}\libs\hunspell.dll;              DestDir: {app}; Flags: ignoreversion;
-Source: ..\..\deploy\{#sPlatform}\libs\ooxmlsignature.dll;        DestDir: {app}; Flags: ignoreversion;
-Source: ..\..\deploy\{#sPlatform}\libs\x2t.exe;                   DestDir: {app}\converter; Flags: ignoreversion;
-#ifdef _WIN_XP
-Source: ..\..\..\..\core\build\lib\{#sPlatform}\xp\ascdocumentscore.dll; DestDir: {app}; Flags: ignoreversion;
-#else
-Source: ..\..\deploy\{#sPlatform}\libs\ascdocumentscore.dll;      DestDir: {app}; Flags: ignoreversion;
-#endif
-
-Source: ..\..\..\..\core\Common\3dParty\v8\v8\out.gn\{#sPlatform}\release\icudtl.dat; DestDir: {app}\converter; Flags: ignoreversion;
-Source: ..\..\..\..\core\Common\3dParty\icu\{#sPlatform}\build\icu*58.dll;  DestDir: {app}\converter; Flags: ignoreversion;
-Source: ..\..\..\..\core\Common\3dParty\cef\{#sPlatform}\build\*;           DestDir: {app}; Excludes: *.lib; Flags: ignoreversion recursesubdirs;
-
-#ifdef _ENCRYPT_MODULE
-Source: ..\..\..\..\desktop-sdk\ChromiumBasedEditors\plugins\encrypt\ui\common\*; DestDir: {app}\editors\sdkjs-plugins; Flags: recursesubdirs;
-Source: ..\..\..\..\desktop-sdk\ChromiumBasedEditors\plugins\encrypt\ui\engine\blockchain\*; DestDir: {app}\editors\sdkjs-plugins; Flags: recursesubdirs;
-#endif
-
-#ifdef _UPDMODULE
-Source: ..\..\3dparty\WinSparkle\{#sPlatform}\WinSparkle.dll;           DestDir: {app}\; Flags: ignoreversion;
-#endif
-
-Source: ..\..\..\common\package\fonts\LICENSE.txt;                    DestDir: {app}\fonts;
-Source: ..\..\..\common\package\fonts\OpenSans-Bold.ttf;              DestDir: {app}\fonts; Flags: onlyifdoesntexist;
-Source: ..\..\..\common\package\fonts\OpenSans-Regular.ttf;           DestDir: {app}\fonts; Flags: onlyifdoesntexist;
-Source: ..\..\..\common\package\fonts\OpenSans-ExtraBold.ttf;         DestDir: {app}\fonts; Flags: onlyifdoesntexist;
-Source: ..\..\..\common\package\fonts\OpenSans-Light.ttf;             DestDir: {app}\fonts; Flags: onlyifdoesntexist;
-Source: ..\..\..\common\package\fonts\OpenSans-Semibold.ttf;          DestDir: {app}\fonts; Flags: onlyifdoesntexist;
-;Source: data\fonts\OpenSans-ExtraBoldItalic.ttf;           DestDir: {fonts}; FontInstall: Open Sans Extrabold Italic; Flags: onlyifdoesntexist uninsneveruninstall;
-;Source: data\fonts\OpenSans-BoldItalic.ttf;                DestDir: {fonts}; FontInstall: Open Sans Bold Italic;      Flags: onlyifdoesntexist uninsneveruninstall;
-;Source: data\fonts\OpenSans-Italic.ttf;                    DestDir: {fonts}; FontInstall: Open Sans Italic;           Flags: onlyifdoesntexist uninsneveruninstall;
-;Source: data\fonts\OpenSans-LightItalic.ttf;               DestDir: {fonts}; FontInstall: Open Sans Light Italic;     Flags: onlyifdoesntexist uninsneveruninstall;
-;Source: data\fonts\OpenSans-SemiboldItalic.ttf;            DestDir: {fonts}; FontInstall: Open Sans Semibold Italic;  Flags: onlyifdoesntexist uninsneveruninstall;
-
-Source: ..\..\..\common\package\fonts\ASANA.ttc;               DestDir: {app}\fonts; Flags: onlyifdoesntexist;
-Source: ..\..\..\common\package\fonts\Carlito-Bold.ttf;        DestDir: {app}\fonts; Flags: onlyifdoesntexist;
-Source: ..\..\..\common\package\fonts\Carlito-BoldItalic.ttf;  DestDir: {app}\fonts; Flags: onlyifdoesntexist;
-Source: ..\..\..\common\package\fonts\Carlito-Italic.ttf;      DestDir: {app}\fonts; Flags: onlyifdoesntexist;
-Source: ..\..\..\common\package\fonts\Carlito-Regular.ttf;     DestDir: {app}\fonts; Flags: onlyifdoesntexist;
-
-  #ifdef _WIN_XP
-Source: ..\..\..\..\core\build\{#PATH_PREFIX}\bin\{#sPlatform}\x2t.exe; DestDir: {app}\converter; Flags: ignoreversion;
-Source: ..\..\..\..\core\build\bin\{#sPlatform}\icudt.dll;     DestDir: {app}\converter; Flags: ignoreversion;
-Source: ..\..\..\..\core\build\bin\icu\{#sPlatform}\*;         DestDir: {app}\converter; Flags: ignoreversion; Excludes: *.lib;
-
-Source: ..\..\..\..\core\build\cef\winxp_{#_ARCH}\*;           DestDir: {app}\; Excludes: *.lib; Flags: ignoreversion recursesubdirs;
-Source: data\libs\qt\win{#_ARCH}\*;                            DestDir: {app}\; Flags: ignoreversion recursesubdirs;
-;Source: ..\..\3dparty\WinSparkle\{#sPlatform}\WinSparkle.dll;  DestDir: {app}\; Flags: ignoreversion;
-  #endif
-
-#else
-
 Source: {#DEPLOY_PATH}\*;                               DestDir: {app}; Flags: recursesubdirs;
 Source: {#DEPLOY_PATH}\*.exe;                           DestDir: {app}; Flags: signonce;
 Source: {#DEPLOY_PATH}\ascdocumentscore.dll;            DestDir: {app}; Flags: signonce;
 Source: {#DEPLOY_PATH}\hunspell.dll;                    DestDir: {app}; Flags: signonce;
 Source: {#DEPLOY_PATH}\ooxmlsignature.dll;              DestDir: {app}; Flags: signonce;
 Source: {#DEPLOY_PATH}\WinSparkle.dll;                  DestDir: {app}; Flags: signonce;
-Source: {#DEPLOY_PATH}\converter\DjVuFile.dll;          DestDir: {app}\converter; Flags: signonce;
-Source: {#DEPLOY_PATH}\converter\doctrenderer.dll;      DestDir: {app}\converter; Flags: signonce;
-Source: {#DEPLOY_PATH}\converter\graphics.dll;          DestDir: {app}\converter; Flags: signonce;
-Source: {#DEPLOY_PATH}\converter\HtmlFile.dll;          DestDir: {app}\converter; Flags: signonce;
-Source: {#DEPLOY_PATH}\converter\HtmlRenderer.dll;      DestDir: {app}\converter; Flags: signonce;
-Source: {#DEPLOY_PATH}\converter\kernel.dll;            DestDir: {app}\converter; Flags: signonce;
-Source: {#DEPLOY_PATH}\converter\PdfReader.dll;         DestDir: {app}\converter; Flags: signonce;
-Source: {#DEPLOY_PATH}\converter\PdfWriter.dll;         DestDir: {app}\converter; Flags: signonce;
-Source: {#DEPLOY_PATH}\converter\UnicodeConverter.dll;  DestDir: {app}\converter; Flags: signonce;
-Source: {#DEPLOY_PATH}\converter\x2t.exe;               DestDir: {app}\converter; Flags: signonce;
-Source: {#DEPLOY_PATH}\converter\XpsFile.dll;           DestDir: {app}\converter; Flags: signonce;
+Source: {#DEPLOY_PATH}\converter\*.dll;                 DestDir: {app}\converter; Flags: signonce;
+Source: {#DEPLOY_PATH}\converter\*.exe;                 DestDir: {app}\converter; Flags: signonce;
 
 [InstallDelete]
 Type: filesandordirs; Name: {app}\editors\sdkjs-plugins
-
-#endif
 
 [Tasks]
 Name: desktopicon; Description: {cm:CreateDesktopIcon,{#sAppName}}; GroupDescription: {cm:AdditionalIcons};

@@ -40,10 +40,15 @@
 # include <Windows.h>
 #endif
 
-using namespace std;
 namespace InputArgs {
-    auto contains(const QString&) -> bool;
-    auto get_arg_value(const QString& param) -> QString;
+    auto init(int argc, char** const argv) -> void;
+    auto init(wchar_t const * argv) -> void;
+    auto contains(const std::wstring&) -> bool;
+    auto argument_value(const std::wstring& param) -> std::wstring;
+    auto arguments() -> const std::vector<std::wstring>&;
+
+    auto webapps_params() -> const std::wstring&;
+    auto set_webapps_params(const std::wstring&) -> void;
 }
 
 class Utils {
@@ -52,7 +57,8 @@ public:
     static QString lastPath(int type);
     static void keepLastPath(int type, const QString&);
     static QString getUserPath();
-    static wstring systemUserName();
+    static std::wstring systemUserName();
+    static std::wstring appUserName();
     static QString getAppCommonPath();
     static QRect getScreenGeometry(const QPoint&);
     static void openUrl(const QString&);
@@ -65,39 +71,45 @@ public:
     static QString replaceBackslash(const QString&);
     static bool isFileLocal(const QString&);
     static bool setAppUserModelId(const QString&);
-    static bool appArgsContains(const QString&);
 
     static bool makepath(const QString&);
 
     static QString systemLocationCode();
     static QIcon appIcon();
 
-    static QString encodeJson(const QJsonObject&);
-    static QString encodeJson(const QString&);
-    static wstring encodeJson(const wstring&);
+    static QString stringifyJson(const QJsonObject&);
 
 //    static QByteArray getAppStylesheets(int);
     static QByteArray readStylesheets(std::vector<QString> *, std::vector<QString> *, int);
     static QByteArray readStylesheets(std::vector<QString> *);
     static QByteArray readStylesheets(const QString&);
-
-#ifdef Q_OS_WIN
-    //TODO: move to window.base class
-    static void adjustWindowRect(HWND, int, LPRECT);
-#endif
+    static QJsonObject parseJson(const std::wstring&);
 };
 
+namespace WindowHelper {
 #ifdef Q_OS_LINUX
-namespace WindowUtils {
     class CParentDisable
     {
         QWidget* m_pChild = nullptr;
     public:
-        CParentDisable(QWidget* parent);
+        CParentDisable(QWidget* parent = nullptr);
         ~CParentDisable();
+
+        void disable(QWidget* parent);
+        void enable();
     };
-}
+
+//    auto check_button_state(Qt::MouseButton b) -> bool;
+#else
+    auto isWindowSystemDocked(HWND handle) -> bool;
+    auto correctWindowMinimumSize(HWND handle) -> void;
+    auto correctModalOrder(HWND windowhandle, HWND modalhandle) -> void;
+    auto adjustWindowRect(HWND, int, LPRECT) -> void;
 #endif
+
+    auto isLeftButtonPressed() -> bool;
+    auto constructFullscreenWidget(QWidget * panel) -> QWidget *;
+}
 
 #endif // UTILS_H
 

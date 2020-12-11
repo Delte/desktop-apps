@@ -63,7 +63,6 @@
 		FC8DDD3D1C31381B00A2AB22 /* ASCReplacePresentationAnimator.mm in Sources */ = {isa = PBXBuildFile; fileRef = FC8DDD3C1C31381B00A2AB22 /* ASCReplacePresentationAnimator.mm */; };
 		FC8EFE011C2A867B00BB2A43 /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC8EFE001C2A867B00BB2A43 /* Sparkle.framework */; };
 		FC8EFE031C2A86DD00BB2A43 /* Sparkle.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = FC8EFE001C2A867B00BB2A43 /* Sparkle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		FC94247A1CB7C92100C78A27 /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = FC9424791CB7C92000C78A27 /* dsa_pub.pem */; };
 		FC981B3C1C744D39006F669C /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC981B3B1C744D39006F669C /* WebKit.framework */; };
 		FC98AF0E1E94E16A00718A12 /* file-csv.icns in Resources */ = {isa = PBXBuildFile; fileRef = FC98AEFC1E94E16A00718A12 /* file-csv.icns */; };
 		FC98AF111E94E16A00718A12 /* file-djvu.icns in Resources */ = {isa = PBXBuildFile; fileRef = FC98AEFD1E94E16A00718A12 /* file-djvu.icns */; };
@@ -87,6 +86,16 @@
 		FCA0B3401B9EB5960073EDD4 /* ASCTitleWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = FCA0B33F1B9EB5960073EDD4 /* ASCTitleWindow.m */; };
 		FCA0B3521B9F002B0073EDD4 /* ASCTitleBackground.m in Sources */ = {isa = PBXBuildFile; fileRef = FCA0B3511B9F002B0073EDD4 /* ASCTitleBackground.m */; };
 		FCA0B3551B9F006F0073EDD4 /* ASCHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = FCA0B3541B9F006F0073EDD4 /* ASCHelper.m */; };
+		FCA3F3072570EC9500DCAB12 /* file-fobs.icns in Resources */ = {isa = PBXBuildFile; fileRef = FCA3F2FD2570EC9400DCAB12 /* file-fobs.icns */; };
+		FCA3F3082570EC9500DCAB12 /* file-fodt.icns in Resources */ = {isa = PBXBuildFile; fileRef = FCA3F2FE2570EC9400DCAB12 /* file-fodt.icns */; };
+		FCA3F3092570EC9500DCAB12 /* file-otp.icns in Resources */ = {isa = PBXBuildFile; fileRef = FCA3F2FF2570EC9500DCAB12 /* file-otp.icns */; };
+		FCA3F30A2570EC9500DCAB12 /* file-ots.icns in Resources */ = {isa = PBXBuildFile; fileRef = FCA3F3002570EC9500DCAB12 /* file-ots.icns */; };
+		FCA3F30B2570EC9500DCAB12 /* file-ott.icns in Resources */ = {isa = PBXBuildFile; fileRef = FCA3F3012570EC9500DCAB12 /* file-ott.icns */; };
+		FCA3F30C2570EC9500DCAB12 /* file-fb2.icns in Resources */ = {isa = PBXBuildFile; fileRef = FCA3F3022570EC9500DCAB12 /* file-fb2.icns */; };
+		FCA3F30D2570EC9500DCAB12 /* file-xml.icns in Resources */ = {isa = PBXBuildFile; fileRef = FCA3F3032570EC9500DCAB12 /* file-xml.icns */; };
+		FCA3F30E2570EC9500DCAB12 /* file-mht.icns in Resources */ = {isa = PBXBuildFile; fileRef = FCA3F3042570EC9500DCAB12 /* file-mht.icns */; };
+		FCA3F30F2570EC9500DCAB12 /* file-htm.icns in Resources */ = {isa = PBXBuildFile; fileRef = FCA3F3052570EC9500DCAB12 /* file-htm.icns */; };
+		FCA3F3102570EC9500DCAB12 /* file-epub.icns in Resources */ = {isa = PBXBuildFile; fileRef = FCA3F3062570EC9500DCAB12 /* file-epub.icns */; };
 		FCA4502E1C2063460007134D /* ASCSharedSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = FCA4502D1C2063460007134D /* ASCSharedSettings.m */; };
 		FCA9A1901BA6DC6000ABF3AB /* ASCCommonViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = FCA9A18F1BA6DC6000ABF3AB /* ASCCommonViewController.mm */; };
 		FCA9A1951BA6DE2700ABF3AB /* ASCTitleBarController.m in Sources */ = {isa = PBXBuildFile; fileRef = FCA9A1921BA6DE2700ABF3AB /* ASCTitleBarController.m */; };
@@ -151,6 +160,8 @@
 		BE6251B922BD089100656116 /* dictionaries */ = {isa = PBXFileReference; lastKnownFileType = folder; name = dictionaries; path = ../../../../dictionaries; sourceTree = "<group>"; };
 		BE95F0A623E9FF590045E0CB /* mac_cefview.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mac_cefview.h; sourceTree = "<group>"; };
 		FC033D251BB13B9900F6C55F /* mac_application.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mac_application.h; sourceTree = "<group>"; };
+		FC035A5B24855E8C00AF820F /* ASCTabViewType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ASCTabViewType.h; sourceTree = "<group>"; };
+		FC035A5C2485625400AF820F /* ASCDocumentType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ASCDocumentType.h; sourceTree = "<group>"; };
 		FC081E9B1C3257F600F9881C /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FC081E9D1C3257FF00F9881C /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FC081EAF1C3258A800F9881C /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -165,6 +176,7 @@
 		FC081EBB1C3258B400F9881C /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		FC09073D1C1855A400D9E881 /* editors */ = {isa = PBXFileReference; lastKnownFileType = folder; name = editors; path = Vendor/ONLYOFFICE/editors; sourceTree = SOURCE_ROOT; };
 		FC0907401C186A7A00D9E881 /* converter */ = {isa = PBXFileReference; lastKnownFileType = folder; name = converter; path = Vendor/ONLYOFFICE/converter; sourceTree = SOURCE_ROOT; };
+		FC0AB7A22484E3AB000798FE /* ONLYOFFICE.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = ONLYOFFICE.entitlements; path = Resources/ONLYOFFICE/ONLYOFFICE.entitlements; sourceTree = "<group>"; };
 		FC1127571BBAAC8000AA3648 /* ASCPopoverLightView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASCPopoverLightView.h; sourceTree = "<group>"; };
 		FC1127581BBAAC8000AA3648 /* ASCPopoverLightView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASCPopoverLightView.m; sourceTree = "<group>"; };
 		FC13B5272080BBF500524968 /* NSImage+Extensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSImage+Extensions.h"; sourceTree = "<group>"; };
@@ -270,7 +282,6 @@
 		FC8DDD3B1C31381B00A2AB22 /* ASCReplacePresentationAnimator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASCReplacePresentationAnimator.h; sourceTree = "<group>"; };
 		FC8DDD3C1C31381B00A2AB22 /* ASCReplacePresentationAnimator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ASCReplacePresentationAnimator.mm; sourceTree = "<group>"; };
 		FC8EFE001C2A867B00BB2A43 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sparkle.framework; path = Vendor/Sparkle/Sparkle.framework; sourceTree = SOURCE_ROOT; };
-		FC9424791CB7C92000C78A27 /* dsa_pub.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = dsa_pub.pem; path = ONLYOFFICE/update/dsa_pub.pem; sourceTree = SOURCE_ROOT; };
 		FC981B3B1C744D39006F669C /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		FC98AEFC1E94E16A00718A12 /* file-csv.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "file-csv.icns"; sourceTree = "<group>"; };
 		FC98AEFD1E94E16A00718A12 /* file-djvu.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "file-djvu.icns"; sourceTree = "<group>"; };
@@ -290,7 +301,6 @@
 		FC98AF0B1E94E16A00718A12 /* file-xls.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "file-xls.icns"; sourceTree = "<group>"; };
 		FC98AF0C1E94E16A00718A12 /* file-xlsx.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "file-xlsx.icns"; sourceTree = "<group>"; };
 		FC98AF0D1E94E16A00718A12 /* file-xps.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "file-xps.icns"; sourceTree = "<group>"; };
-		FC98BAD21BAC35BA00747944 /* ONLYOFFICE.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = ONLYOFFICE.entitlements; sourceTree = "<group>"; };
 		FC98BAD41BAC43B400747944 /* NSCefView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSCefView.h; sourceTree = "<group>"; };
 		FC98BAD51BAC43B400747944 /* NSCefView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NSCefView.mm; sourceTree = "<group>"; };
 		FC9EA18D225B712D0093CADF /* zh-Hans-CN */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans-CN"; path = "zh-Hans-CN.lproj/Main.strings"; sourceTree = "<group>"; };
@@ -309,6 +319,16 @@
 		FCA0B3531B9F006F0073EDD4 /* ASCHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASCHelper.h; sourceTree = "<group>"; };
 		FCA0B3541B9F006F0073EDD4 /* ASCHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASCHelper.m; sourceTree = "<group>"; };
 		FCA0B3601B9F0AA10073EDD4 /* ASCConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASCConstants.h; sourceTree = "<group>"; };
+		FCA3F2FD2570EC9400DCAB12 /* file-fobs.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "file-fobs.icns"; sourceTree = "<group>"; };
+		FCA3F2FE2570EC9400DCAB12 /* file-fodt.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "file-fodt.icns"; sourceTree = "<group>"; };
+		FCA3F2FF2570EC9500DCAB12 /* file-otp.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "file-otp.icns"; sourceTree = "<group>"; };
+		FCA3F3002570EC9500DCAB12 /* file-ots.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "file-ots.icns"; sourceTree = "<group>"; };
+		FCA3F3012570EC9500DCAB12 /* file-ott.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "file-ott.icns"; sourceTree = "<group>"; };
+		FCA3F3022570EC9500DCAB12 /* file-fb2.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "file-fb2.icns"; sourceTree = "<group>"; };
+		FCA3F3032570EC9500DCAB12 /* file-xml.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "file-xml.icns"; sourceTree = "<group>"; };
+		FCA3F3042570EC9500DCAB12 /* file-mht.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "file-mht.icns"; sourceTree = "<group>"; };
+		FCA3F3052570EC9500DCAB12 /* file-htm.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "file-htm.icns"; sourceTree = "<group>"; };
+		FCA3F3062570EC9500DCAB12 /* file-epub.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "file-epub.icns"; sourceTree = "<group>"; };
 		FCA4502C1C2063460007134D /* ASCSharedSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASCSharedSettings.h; sourceTree = "<group>"; };
 		FCA4502D1C2063460007134D /* ASCSharedSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASCSharedSettings.m; sourceTree = "<group>"; };
 		FCA9A18E1BA6DC6000ABF3AB /* ASCCommonViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASCCommonViewController.h; sourceTree = "<group>"; };
@@ -437,6 +457,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		FC035A5A24855E1900AF820F /* Enums */ = {
+			isa = PBXGroup;
+			children = (
+				FC035A5B24855E8C00AF820F /* ASCTabViewType.h */,
+				FC035A5C2485625400AF820F /* ASCDocumentType.h */,
+			);
+			path = Enums;
+			sourceTree = "<group>";
+		};
 		FC081E981C32575800F9881C /* ONLYOFFICE */ = {
 			isa = PBXGroup;
 			children = (
@@ -459,6 +488,16 @@
 		FC081EBC1C325E8400F9881C /* file-formats */ = {
 			isa = PBXGroup;
 			children = (
+				FCA3F3062570EC9500DCAB12 /* file-epub.icns */,
+				FCA3F3022570EC9500DCAB12 /* file-fb2.icns */,
+				FCA3F2FD2570EC9400DCAB12 /* file-fobs.icns */,
+				FCA3F2FE2570EC9400DCAB12 /* file-fodt.icns */,
+				FCA3F3052570EC9500DCAB12 /* file-htm.icns */,
+				FCA3F3042570EC9500DCAB12 /* file-mht.icns */,
+				FCA3F2FF2570EC9500DCAB12 /* file-otp.icns */,
+				FCA3F3002570EC9500DCAB12 /* file-ots.icns */,
+				FCA3F3012570EC9500DCAB12 /* file-ott.icns */,
+				FCA3F3032570EC9500DCAB12 /* file-xml.icns */,
 				FC98AEFC1E94E16A00718A12 /* file-csv.icns */,
 				FC98AEFD1E94E16A00718A12 /* file-djvu.icns */,
 				FC98AEFE1E94E16A00718A12 /* file-doc.icns */,
@@ -690,7 +729,6 @@
 			isa = PBXGroup;
 			children = (
 				BE6251B922BD089100656116 /* dictionaries */,
-				FC9424791CB7C92000C78A27 /* dsa_pub.pem */,
 				FC081E981C32575800F9881C /* ONLYOFFICE */,
 				FC081E9A1C3257A800F9881C /* ONLYOFFICE-MAS */,
 				FC081EBC1C325E8400F9881C /* file-formats */,
@@ -750,7 +788,7 @@
 		FCBC426A1B9D650400405301 /* ONLYOFFICE */ = {
 			isa = PBXGroup;
 			children = (
-				FC98BAD21BAC35BA00747944 /* ONLYOFFICE.entitlements */,
+				FC0AB7A22484E3AB000798FE /* ONLYOFFICE.entitlements */,
 				FC29CD421F979946003F4136 /* Storyboard */,
 				FC5A2CFE1BABEF42001ACEB1 /* SDK */,
 				FCF289712150E65A002FD438 /* Code */,
@@ -899,6 +937,7 @@
 		FCF289712150E65A002FD438 /* Code */ = {
 			isa = PBXGroup;
 			children = (
+				FC035A5A24855E1900AF820F /* Enums */,
 				FCF289732150E737002FD438 /* Views */,
 				FCCC2FD421E5DD5800FB9209 /* TouchBar */,
 				FCF289722150E6A1002FD438 /* Controllers */,
@@ -1072,10 +1111,9 @@
 			};
 			buildConfigurationList = FCBC42631B9D650400405301 /* Build configuration list for PBXProject "ONLYOFFICE" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				English,
 				en,
 				Base,
 				ru,
@@ -1104,14 +1142,21 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FCA3F3092570EC9500DCAB12 /* file-otp.icns in Resources */,
+				FCA3F30C2570EC9500DCAB12 /* file-fb2.icns in Resources */,
+				FCA3F3102570EC9500DCAB12 /* file-epub.icns in Resources */,
+				FCA3F30F2570EC9500DCAB12 /* file-htm.icns in Resources */,
 				FC98AF231E94E16A00718A12 /* file-odt.icns in Resources */,
 				FC98AF351E94E16A00718A12 /* file-rtf.icns in Resources */,
 				FC98AF1D1E94E16A00718A12 /* file-odp.icns in Resources */,
 				FC98AF261E94E16A00718A12 /* file-pdf.icns in Resources */,
+				FCA3F30E2570EC9500DCAB12 /* file-mht.icns in Resources */,
 				FC98AF3E1E94E16A00718A12 /* file-xlsx.icns in Resources */,
 				FC98AF2C1E94E16A00718A12 /* file-ppsx.icns in Resources */,
 				FC54A2851F94BA6D0086F4FE /* Presentation-Reporter.storyboard in Resources */,
 				FC09073E1C1855A400D9E881 /* editors in Resources */,
+				FCA3F3072570EC9500DCAB12 /* file-fobs.icns in Resources */,
+				FCA3F3082570EC9500DCAB12 /* file-fodt.icns in Resources */,
 				FCDDD602208F3C25008AF573 /* Document-Sign.storyboard in Resources */,
 				FC98AF111E94E16A00718A12 /* file-djvu.icns in Resources */,
 				FC98AF0E1E94E16A00718A12 /* file-csv.icns in Resources */,
@@ -1128,14 +1173,16 @@
 				FCD2B9181BC64F0C00F54560 /* Localizable.stringsdict in Resources */,
 				FC98AF2F1E94E16A00718A12 /* file-ppt.icns in Resources */,
 				FC6718461BD91B3A0028600F /* MoveApplication.strings in Resources */,
+				FCA3F30A2570EC9500DCAB12 /* file-ots.icns in Resources */,
+				FCA3F30B2570EC9500DCAB12 /* file-ott.icns in Resources */,
 				FC98AF3B1E94E16A00718A12 /* file-xls.icns in Resources */,
 				FC98AF1A1E94E16A00718A12 /* file-html.icns in Resources */,
 				FC5C71E81C64F6F300FBBF70 /* EULA.html in Resources */,
 				FC081EAE1C3258A800F9881C /* InfoPlist.strings in Resources */,
 				FC98AF321E94E16A00718A12 /* file-pptx.icns in Resources */,
 				FC98AF381E94E16A00718A12 /* file-txt.icns in Resources */,
-				FC94247A1CB7C92100C78A27 /* dsa_pub.pem in Resources */,
 				FCBC42791B9D650500405301 /* Main.storyboard in Resources */,
+				FCA3F30D2570EC9500DCAB12 /* file-xml.icns in Resources */,
 				FC65A6421F33356300BD0F7E /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1159,7 +1206,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#!/bin/sh\n\n#exit 0\n\nbase_path=$(pwd)\ncontents_path=${CONFIGURATION_BUILD_DIR}/${CONTENTS_FOLDER_PATH}\nframeworks_path=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\nconverter_path=\"${contents_path}/Resources/converter\"\ncore_path=\"${base_path}/../../build_tools/out/mac_64/onlyoffice/desktopeditors\"\n\n# Signs a framework with the provided identity\ncode_sign_if_enabled() {\n  if [ -n \"${EXPANDED_CODE_SIGN_IDENTITY:-}\" -a \"${CODE_SIGNING_REQUIRED:-}\" != \"NO\" -a \"${CODE_SIGNING_ALLOWED}\" != \"NO\" ]; then\n    # Use the current code_sign_identity\n    echo \"Code Signing $1 with Identity ${EXPANDED_CODE_SIGN_IDENTITY_NAME}\"\n    local code_sign_cmd=\"/usr/bin/codesign --force --sign ${EXPANDED_CODE_SIGN_IDENTITY} ${OTHER_CODE_SIGN_FLAGS:-} --preserve-metadata=identifier,entitlements '$1'\"\n\n    echo \"$code_sign_cmd\"\n    eval \"$code_sign_cmd\"\n  fi\n}\n\n# Change path of dependency library\nchange_dependency_path() {\n  echo \"Rename path for $1 from $2 to $3\"\n  install_name_tool -change \"$2\" \"$3\" \"$1\"\n}\n\nrm -rf \"${frameworks_path}/Chromium Embedded Framework.framework\"\nrm -rf \"${frameworks_path}/editors_helper.app\"\nrm -rf \"${frameworks_path}/editors_helper (GPU).app\"\nrm -rf \"${frameworks_path}/editors_helper (Renderer).app\"\nrm -rf \"${frameworks_path}/libascdocumentscore.dylib\"\nrm -rf \"${frameworks_path}/libooxmlsignature.dylib\"\nrm -rf \"${frameworks_path}/libhunspell.dylib\"\n\nif [ ! -d \"${frameworks_path}\" ]; then\nmkdir -p \"${frameworks_path}\"\nfi\n\necho \"Copy libraries and frameworks\"\ncp -Rv \"${core_path}/editors_helper.app\" \"${frameworks_path}/\"\ncp -Rv \"${core_path}/editors_helper (GPU).app\" \"${frameworks_path}/\"\ncp -Rv \"${core_path}/editors_helper (Renderer).app\" \"${frameworks_path}/\"\ncp -Rv \"${core_path}/Chromium Embedded Framework.framework\" \"${frameworks_path}\"\ncp -Rv \"${core_path}/libascdocumentscore.dylib\" \"${frameworks_path}\"\ncp -Rv \"${core_path}/libooxmlsignature.dylib\" \"${frameworks_path}\"\ncp -Rv \"${core_path}/libhunspell.dylib\" \"${frameworks_path}\"\n\n# Fixed paths application\necho \"Fixed dependency paths of application\"\nchange_dependency_path \"${contents_path}/MacOS/${TARGET_NAME}\" \"@executable_path/../Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework\" \"@rpath/Chromium Embedded Framework.framework/Chromium Embedded Framework\"\nchange_dependency_path \"${contents_path}/MacOS/${TARGET_NAME}\" libascdocumentscore.dylib @rpath/libascdocumentscore.dylib\nchange_dependency_path \"${contents_path}/MacOS/${TARGET_NAME}\" libooxmlsignature.dylib @rpath/libooxmlsignature.dylib\n\n# Resign the code if required by the build settings to avoid unstable apps\necho \"Sign libraries and frameworks with ${EXPANDED_CODE_SIGN_IDENTITY_NAME}\"\n\ncode_sign_if_enabled \"${frameworks_path}/libooxmlsignature.dylib\"\ncode_sign_if_enabled \"${frameworks_path}/libascdocumentscore.dylib\"\ncode_sign_if_enabled \"${frameworks_path}/libhunspell.dylib\"\n\ncode_sign_if_enabled \"${converter_path}/libicudata.58.dylib\"\ncode_sign_if_enabled \"${converter_path}/libicuuc.58.dylib\"\ncode_sign_if_enabled \"${converter_path}/libUnicodeConverter.dylib\"\ncode_sign_if_enabled \"${converter_path}/libkernel.dylib\"\ncode_sign_if_enabled \"${converter_path}/libgraphics.dylib\"\ncode_sign_if_enabled \"${converter_path}/libdoctrenderer.dylib\"\ncode_sign_if_enabled \"${converter_path}/libPdfWriter.dylib\"\ncode_sign_if_enabled \"${converter_path}/libDjVuFile.dylib\"\ncode_sign_if_enabled \"${converter_path}/libPdfReader.dylib\"\ncode_sign_if_enabled \"${converter_path}/libXpsFile.dylib\"\ncode_sign_if_enabled \"${converter_path}/libHtmlFile.dylib\"\ncode_sign_if_enabled \"${converter_path}/libHtmlRenderer.dylib\"\n\ncodesign --verbose --force --options runtime --entitlements \"${CODE_SIGN_ENTITLEMENTS}\" --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" \"${converter_path}/x2t\"\n\ncodesign --verbose=4 --force --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" \"${frameworks_path}/Chromium Embedded Framework.framework/\"\ncodesign --verbose=4 --force --options runtime --entitlements \"${CODE_SIGN_ENTITLEMENTS}\" --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" \"${frameworks_path}/editors_helper.app/\"\ncodesign --verbose=4 --force --options runtime --entitlements \"${CODE_SIGN_ENTITLEMENTS}\" --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" \"${frameworks_path}/editors_helper (GPU).app/\"\ncodesign --verbose=4 --force --options runtime --entitlements \"${CODE_SIGN_ENTITLEMENTS}\" --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" \"${frameworks_path}/editors_helper (Renderer).app/\"\n\ncodesign --verbose --force --deep -o runtime --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" \"${frameworks_path}/Sparkle.framework/Versions/A/Resources/AutoUpdate.app\"\ncodesign --verbose --force -o runtime --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" \"${frameworks_path}/Sparkle.framework/Versions/A\"\n\n";
+			shellScript = "#!/bin/sh\n\n#exit 0\n\nbase_path=$(pwd)\ncontents_path=${CONFIGURATION_BUILD_DIR}/${CONTENTS_FOLDER_PATH}\nframeworks_path=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\nconverter_path=\"${contents_path}/Resources/converter\"\ncore_path=\"${base_path}/../../build_tools/out/mac_64/onlyoffice/desktopeditors\"\n\n# Signs a framework with the provided identity\ncode_sign_if_enabled() {\n  if [ -n \"${EXPANDED_CODE_SIGN_IDENTITY:-}\" -a \"${CODE_SIGNING_REQUIRED:-}\" != \"NO\" -a \"${CODE_SIGNING_ALLOWED}\" != \"NO\" ]; then\n    # Use the current code_sign_identity\n    echo \"Code Signing $1 with Identity ${EXPANDED_CODE_SIGN_IDENTITY_NAME}\"\n    local code_sign_cmd=\"/usr/bin/codesign --force --sign ${EXPANDED_CODE_SIGN_IDENTITY} ${OTHER_CODE_SIGN_FLAGS:-} --preserve-metadata=identifier,entitlements '$1'\"\n\n    echo \"$code_sign_cmd\"\n    eval \"$code_sign_cmd\"\n  fi\n}\n\n# Change path of dependency library\nchange_dependency_path() {\n  echo \"Rename path for $1 from $2 to $3\"\n  install_name_tool -change \"$2\" \"$3\" \"$1\"\n}\n\nrm -rf \"${frameworks_path}/Chromium Embedded Framework.framework\"\nrm -rf \"${frameworks_path}/editors_helper.app\"\nrm -rf \"${frameworks_path}/editors_helper (GPU).app\"\nrm -rf \"${frameworks_path}/editors_helper (Renderer).app\"\nrm -rf \"${frameworks_path}/libascdocumentscore.dylib\"\nrm -rf \"${frameworks_path}/libooxmlsignature.dylib\"\nrm -rf \"${frameworks_path}/libhunspell.dylib\"\n\nif [ ! -d \"${frameworks_path}\" ]; then\nmkdir -p \"${frameworks_path}\"\nfi\n\necho \"Copy libraries and frameworks\"\ncp -Rv \"${core_path}/editors_helper.app\" \"${frameworks_path}/\"\ncp -Rv \"${core_path}/editors_helper (GPU).app\" \"${frameworks_path}/\"\ncp -Rv \"${core_path}/editors_helper (Renderer).app\" \"${frameworks_path}/\"\ncp -Rv \"${core_path}/Chromium Embedded Framework.framework\" \"${frameworks_path}\"\ncp -Rv \"${core_path}/libascdocumentscore.dylib\" \"${frameworks_path}\"\ncp -Rv \"${core_path}/libooxmlsignature.dylib\" \"${frameworks_path}\"\ncp -Rv \"${core_path}/libhunspell.dylib\" \"${frameworks_path}\"\n\n# Fixed paths application\necho \"Fixed dependency paths of application\"\nchange_dependency_path \"${contents_path}/MacOS/${TARGET_NAME}\" \"@executable_path/../Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework\" \"@rpath/Chromium Embedded Framework.framework/Chromium Embedded Framework\"\nchange_dependency_path \"${contents_path}/MacOS/${TARGET_NAME}\" libascdocumentscore.dylib @rpath/libascdocumentscore.dylib\nchange_dependency_path \"${contents_path}/MacOS/${TARGET_NAME}\" libooxmlsignature.dylib @rpath/libooxmlsignature.dylib\n\n# Resign the code if required by the build settings to avoid unstable apps\necho \"Sign libraries and frameworks with ${EXPANDED_CODE_SIGN_IDENTITY_NAME}\"\n\ncode_sign_if_enabled \"${frameworks_path}/libooxmlsignature.dylib\"\ncode_sign_if_enabled \"${frameworks_path}/libascdocumentscore.dylib\"\ncode_sign_if_enabled \"${frameworks_path}/libhunspell.dylib\"\n\ncode_sign_if_enabled \"${converter_path}/libicudata.58.dylib\"\ncode_sign_if_enabled \"${converter_path}/libicuuc.58.dylib\"\ncode_sign_if_enabled \"${converter_path}/libUnicodeConverter.dylib\"\ncode_sign_if_enabled \"${converter_path}/libkernel.dylib\"\ncode_sign_if_enabled \"${converter_path}/libgraphics.dylib\"\ncode_sign_if_enabled \"${converter_path}/libdoctrenderer.dylib\"\ncode_sign_if_enabled \"${converter_path}/libPdfWriter.dylib\"\ncode_sign_if_enabled \"${converter_path}/libDjVuFile.dylib\"\ncode_sign_if_enabled \"${converter_path}/libPdfReader.dylib\"\ncode_sign_if_enabled \"${converter_path}/libXpsFile.dylib\"\ncode_sign_if_enabled \"${converter_path}/libHtmlFile2.dylib\"\ncode_sign_if_enabled \"${converter_path}/libHtmlRenderer.dylib\"\ncode_sign_if_enabled \"${converter_path}/libEpubFile.dylib\"\ncode_sign_if_enabled \"${converter_path}/libFb2File.dylib\"\n\ncodesign --verbose --force --options runtime --entitlements \"${CODE_SIGN_ENTITLEMENTS}\" --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" \"${converter_path}/x2t\"\n\ncodesign --verbose=4 --force --deep --options runtime --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" \"${frameworks_path}/Chromium Embedded Framework.framework/Libraries/libEGL.dylib\"\ncodesign --verbose=4 --force --deep --options runtime --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" \"${frameworks_path}/Chromium Embedded Framework.framework/Libraries/libswiftshader_libEGL.dylib\"\ncodesign --verbose=4 --force --deep --options runtime --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" \"${frameworks_path}/Chromium Embedded Framework.framework/Libraries/libGLESv2.dylib\"\ncodesign --verbose=4 --force --deep --options runtime --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" \"${frameworks_path}/Chromium Embedded Framework.framework/Libraries/libswiftshader_libGLESv2.dylib\"\ncodesign --verbose=4 --force --deep --options runtime --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" \"${frameworks_path}/Chromium Embedded Framework.framework/Libraries/libvk_swiftshader.dylib\"\ncodesign --verbose=4 --force --deep --options runtime --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" \"${frameworks_path}/Chromium Embedded Framework.framework\"\ncodesign --verbose=4 --force --deep --options runtime --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" --entitlements \"${CODE_SIGN_ENTITLEMENTS}\"  \"${frameworks_path}/editors_helper.app\"\ncodesign --verbose=4 --force --deep --options runtime --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" --entitlements \"${CODE_SIGN_ENTITLEMENTS}\"  \"${frameworks_path}/editors_helper (GPU).app\"\ncodesign --verbose=4 --force --deep --options runtime --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" --entitlements \"${CODE_SIGN_ENTITLEMENTS}\"  \"${frameworks_path}/editors_helper (Renderer).app\"\n\ncodesign --verbose --force --deep --options runtime --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" \"${frameworks_path}/Sparkle.framework/Versions/A/Resources/AutoUpdate.app\"\ncodesign --verbose --force --options runtime --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" \"${frameworks_path}/Sparkle.framework/Versions/A\"\n\ncodesign --verbose=4 --force --options runtime --entitlements \"${CODE_SIGN_ENTITLEMENTS}\" --sign \"${EXPANDED_CODE_SIGN_IDENTITY}\" \"${contents_path}/MacOS/${TARGET_NAME}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FC5A2D271BABF6E1001ACEB1 /* Copy Library */ = {
@@ -1541,12 +1588,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = ONLYOFFICE/ONLYOFFICE.entitlements;
+				CODE_SIGN_ENTITLEMENTS = ONLYOFFICE/Resources/ONLYOFFICE/ONLYOFFICE.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 410;
 				DEVELOPMENT_TEAM = 2WH24U26GJ;
 				ENABLE_HARDENED_RUNTIME = YES;
+				EXCLUDED_ARCHS = arm64;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/../../build_tools/out/mac_64/onlyoffice/desktopeditors",
@@ -1566,7 +1615,7 @@
 					"$(PROJECT_DIR)/../../build_tools/out/mac_64/onlyoffice/desktopeditors",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 5.5.1;
+				MARKETING_VERSION = 5.6.4;
 				OTHER_CODE_SIGN_FLAGS = "";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1583,12 +1632,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = ONLYOFFICE/ONLYOFFICE.entitlements;
+				CODE_SIGN_ENTITLEMENTS = ONLYOFFICE/Resources/ONLYOFFICE/ONLYOFFICE.entitlements;
 				CODE_SIGN_IDENTITY = "Developer ID Application: Ascensio System SIA (2WH24U26GJ)";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 410;
 				DEVELOPMENT_TEAM = 2WH24U26GJ;
 				ENABLE_HARDENED_RUNTIME = YES;
+				EXCLUDED_ARCHS = arm64;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/../../build_tools/out/mac_64/onlyoffice/desktopeditors",
@@ -1608,7 +1659,7 @@
 					"$(PROJECT_DIR)/../../build_tools/out/mac_64/onlyoffice/desktopeditors",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				MARKETING_VERSION = 5.5.1;
+				MARKETING_VERSION = 5.6.4;
 				OTHER_CODE_SIGN_FLAGS = "";
 				OTHER_LDFLAGS = (
 					"$(inherited)",

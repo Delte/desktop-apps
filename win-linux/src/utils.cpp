@@ -43,6 +43,7 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QProcess>
 #include <QScreen>
 #include <QStorageInfo>
@@ -50,8 +51,10 @@
 
 #include "cascapplicationmanagerwrapper.h"
 #include "qdpichecker.h"
+#include "common/File.h"
 
 #ifdef _WIN32
+#include <windowsx.h>
 #include "shlobj.h"
 #include "lmcons.h"
 typedef HRESULT (__stdcall *SetCurrentProcessExplicitAppUserModelIDProc)(PCWSTR AppID);
@@ -60,31 +63,65 @@ typedef HRESULT (__stdcall *SetCurrentProcessExplicitAppUserModelIDProc)(PCWSTR 
 #endif
 
 #include <QDebug>
-extern QStringList g_cmdArgs;
+//extern QStringList g_cmdArgs;
 
 namespace InputArgs {
-    auto contains(const QString& param) -> bool {
-        auto iter = std::find_if(begin(g_cmdArgs), end(g_cmdArgs),
-            [&param](const QString& s) {
-                return s.startsWith(param);
-        });
+    std::vector<std::wstring> in_args;
 
-        return iter != end(g_cmdArgs);
+    auto init(int argc, char** const argv) -> void {
+        for (int c(1); c < argc; ++c) {
+            in_args.push_back(UTF8_TO_U(std::string(argv[c])));
+        }
     }
 
-    auto get_arg_value(const QString& param) -> QString {
-        QRegularExpression _re("^" + param + "[=|:]([\\w\\\":\\\\/]+)", QRegularExpression::CaseInsensitiveOption);
+    auto init(wchar_t const * wargvl) -> void {
+#ifdef Q_OS_WIN
+        int argc;
+        LPWSTR * argv = CommandLineToArgvW(wargvl, &argc);
 
-        for (const auto& item: g_cmdArgs) {
-            QRegularExpressionMatch _match = _re.match(item);
-            if ( _match.hasMatch() )
-                return _match.captured(1);
+        if (argv != nullptr) {
+            for(int i(1); i < argc; ++i) {
+                in_args.push_back(argv[i]);
+            }
         }
 
-        return QString();
+        LocalFree(argv);
+#endif
+    }
+
+
+    auto contains(const std::wstring& param) -> bool {
+        auto iter = std::find_if(std::begin(in_args), std::end(in_args),
+            [&param](const std::wstring& s) {
+                return s.find(param) != std::wstring::npos;
+        });
+
+        return iter != end(in_args);
+    }
+
+    auto argument_value(const std::wstring& param) -> std::wstring {
+        for (const auto& item: in_args) {
+            if ( item.find(param) != std::wstring::npos ) {
+                return item.substr(param.size() + 1); // substring after '=' or ':' symbol
+            }
+        }
+
+        return L"";
+    }
+
+    auto arguments() -> const std::vector<std::wstring>& {
+        return in_args;
+    }
+
+    std::wstring web_apps_params;
+    auto webapps_params() -> const std::wstring& {
+        return web_apps_params;
+    }
+
+    auto set_webapps_params(const std::wstring& params) -> void {
+        web_apps_params = params;
     }
 }
-
 
 QStringList * Utils::getInputFiles(const QStringList& inlist)
 {
@@ -221,8 +258,11 @@ void Utils::openUrl(const QString& url)
 void Utils::openFileLocation(const QString& path)
 {
 #if defined(Q_OS_WIN)
-    QStringList args{"/select,", QDir::toNativeSeparators(path)};
-    QProcess::startDetached("explorer", args);
+    ITEMIDLIST * idl = ILCreateFromPath(QDir::toNativeSeparators(path).toStdWString().c_str());
+    if ( idl ) {
+        SHOpenFolderAndSelectItems(idl, 0, 0, 0);
+        ILFree(const_cast<LPITEMIDLIST>(idl));
+    }
 #else
     static QString _file_browser;
     static QString _arg_select = "--no-desktop";
@@ -317,24 +357,9 @@ QString Utils::getPortalName(const QString& url)
     return url;
 }
 
-QString Utils::encodeJson(const QJsonObject& obj)
+QString Utils::stringifyJson(const QJsonObject& obj)
 {
-    return Utils::encodeJson(
-                QJsonDocument(obj).toJson(QJsonDocument::Compact) );
-}
-
-QString Utils::encodeJson(const QString& s)
-{
-    return QString(s).replace("\"", "\\\"");
-}
-
-wstring Utils::encodeJson(const wstring& s)
-{
-#if defined(__GNUC__) && __GNUC__ <= 4 && __GNUC_MINOR__ < 9
-    return QString::fromStdWString(s).replace("\"", "\\\"").toStdWString();
-#else
-    return std::regex_replace(wstring(s), std::wregex(L"\""), L"\\\"");
-#endif
+    return QJsonDocument(obj).toJson(QJsonDocument::Compact);
 }
 
 unsigned Utils::getScreenDpiRatio(int scrnum)
@@ -350,7 +375,11 @@ unsigned Utils::getScreenDpiRatio(const QPoint& pt)
     QWidget _w;
     _w.setGeometry(QRect(pt, QSize(10,10)));
 
+#ifdef Q_OS_LINUX
+    return getScreenDpiRatioByWidget(&_w);
+#else
     return getScreenDpiRatioByHWND(_w.winId());
+#endif
 }
 
 unsigned Utils::getScreenDpiRatioByHWND(int hwnd)
@@ -455,6 +484,19 @@ QByteArray Utils::readStylesheets(const QString& path)
     return _css;
 }
 
+QJsonObject Utils::parseJson(const std::wstring& wjson)
+{
+    QJsonParseError jerror;
+    QByteArray stringdata = QString::fromStdWString(wjson).toUtf8();
+    QJsonDocument jdoc = QJsonDocument::fromJson(stringdata, &jerror);
+
+    if( jerror.error == QJsonParseError::NoError ) {
+        return jdoc.object();
+    }
+
+    return QJsonObject();
+}
+
 QString Utils::replaceBackslash(const QString& path)
 {
     return QString(path).replace(QRegularExpression("\\\\"), "/");
@@ -481,14 +523,14 @@ bool Utils::setAppUserModelId(const QString& modelid)
     return _result;
 }
 
-wstring Utils::systemUserName()
+std::wstring Utils::systemUserName()
 {
 #ifdef Q_OS_WIN
     WCHAR _env_name[UNLEN + 1]{0};
     DWORD _size = UNLEN + 1;
 
     return GetUserName(_env_name, &_size) ?
-                            wstring(_env_name) : L"Unknown.User";
+                            std::wstring(_env_name) : L"Unknown.User";
 #else
     QString _env_name = qgetenv("USER");
     if ( _env_name.isEmpty() ) {
@@ -502,36 +544,42 @@ wstring Utils::systemUserName()
 #endif
 }
 
-bool Utils::appArgsContains(const QString& a)
+std::wstring Utils::appUserName()
 {
-    return g_cmdArgs.contains(a);
+    GET_REGISTRY_USER(_reg_user)
+
+    QJsonParseError jerror;
+    QByteArray data = QByteArray::fromBase64(_reg_user.value("appdata").toByteArray());
+    QJsonDocument jdoc = QJsonDocument::fromJson(data, &jerror);
+
+    if( jerror.error == QJsonParseError::NoError ) {
+        QJsonObject objRoot = jdoc.object();
+
+        if ( objRoot.contains("username") ) {
+            return objRoot["username"].toString().toStdWString();
+        }
+    }
+
+    return systemUserName();
 }
 
 #ifdef Q_OS_WIN
-#include <windowsx.h>
-void Utils::adjustWindowRect(HWND handle, int dpiratio, LPRECT rect)
-{
-    typedef BOOL (__stdcall *AdjustWindowRectExForDpiW)(LPRECT lpRect, DWORD dwStyle, BOOL bMenu, DWORD dwExStyle, UINT dpi);
-
-    static AdjustWindowRectExForDpiW _adjustWindowRectEx = NULL;
-    static bool _is_read = false;
-    if ( !_is_read && !_adjustWindowRectEx ) {
-        HMODULE _lib = ::LoadLibrary(L"user32.dll");
-        _adjustWindowRectEx = reinterpret_cast<AdjustWindowRectExForDpiW>(GetProcAddress(_lib, "AdjustWindowRectExForDpi"));
-        FreeLibrary(_lib);
-
-        _is_read = true;
-    }
-
-    if ( _adjustWindowRectEx != NULL ) {
-        _adjustWindowRectEx(rect, (GetWindowStyle(handle) & ~WS_DLGFRAME), FALSE, 0, 96*dpiratio);
-    } else AdjustWindowRectEx(rect, (GetWindowStyle(handle) & ~WS_DLGFRAME), FALSE, 0);
-}
 #endif
 
+namespace WindowHelper {
 #ifdef Q_OS_LINUX
-namespace WindowUtils {
     CParentDisable::CParentDisable(QWidget* parent)
+    {
+        disable(parent);
+    }
+
+    CParentDisable::~CParentDisable()
+    {
+        if (m_pChild)
+            m_pChild->deleteLater();
+    }
+
+    void CParentDisable::disable(QWidget* parent)
     {
         if (parent) {
             if (QCefView::IsSupportLayers())
@@ -554,10 +602,102 @@ namespace WindowUtils {
         }
     }
 
-    CParentDisable::~CParentDisable()
+    void CParentDisable::enable()
     {
-        if (m_pChild)
+        if ( m_pChild ) {
             m_pChild->deleteLater();
+            m_pChild = nullptr;
+        }
+    }
+
+#else
+    auto isWindowSystemDocked(HWND handle) -> bool {
+        RECT windowrect;
+        WINDOWPLACEMENT wp; wp.length = sizeof(WINDOWPLACEMENT);
+        if ( GetWindowRect(handle, &windowrect) && GetWindowPlacement(handle, &wp) && wp.showCmd == SW_SHOWNORMAL ) {
+            return (wp.rcNormalPosition.right - wp.rcNormalPosition.left != windowrect.right - windowrect.left) ||
+                        (wp.rcNormalPosition.bottom - wp.rcNormalPosition.top != windowrect.bottom - windowrect.top);
+        }
+
+        return false;
+    }
+
+    auto correctWindowMinimumSize(HWND handle) -> void {
+        WINDOWPLACEMENT wp; wp.length = sizeof(WINDOWPLACEMENT);
+        if ( GetWindowPlacement(handle, &wp) ) {
+            int dpi_ratio = Utils::getScreenDpiRatioByHWND((int)handle);
+            QSize _min_windowsize{MAIN_WINDOW_MIN_WIDTH * dpi_ratio,MAIN_WINDOW_MIN_HEIGHT * dpi_ratio};
+            QRect windowRect{QPoint(wp.rcNormalPosition.left, wp.rcNormalPosition.top),
+                                    QPoint(wp.rcNormalPosition.right, wp.rcNormalPosition.bottom)};
+
+            if ( windowRect.width() < _min_windowsize.width() ||
+                    windowRect.height() < _min_windowsize.height() )
+            {
+//                if ( windowRect.width() < _min_windowsize.width() )
+                    wp.rcNormalPosition.right = wp.rcNormalPosition.left + _min_windowsize.width();
+
+//                if ( windowRect.height() < _min_windowsize.height() )
+                    wp.rcNormalPosition.bottom = wp.rcNormalPosition.top + _min_windowsize.height();
+
+                SetWindowPlacement(handle, &wp);
+            }
+        }
+    }
+
+    auto correctModalOrder(HWND windowhandle, HWND modalhandle) -> void
+    {
+        if ( !IsWindowEnabled(windowhandle) && modalhandle && modalhandle != windowhandle ) {
+            SetActiveWindow(modalhandle);
+            SetWindowPos(windowhandle, modalhandle, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+        }
+    }
+
+    typedef BOOL (__stdcall *AdjustWindowRectExForDpiW)(LPRECT lpRect, DWORD dwStyle, BOOL bMenu, DWORD dwExStyle, UINT dpi);
+    auto adjustWindowRect(HWND handle, int dpiratio, LPRECT rect) -> void
+    {
+        static AdjustWindowRectExForDpiW _adjustWindowRectEx = nullptr;
+        static bool _is_read = false;
+        if ( !_is_read && !_adjustWindowRectEx ) {
+            HMODULE _lib = ::LoadLibrary(L"user32.dll");
+            _adjustWindowRectEx = reinterpret_cast<AdjustWindowRectExForDpiW>(GetProcAddress(_lib, "AdjustWindowRectExForDpi"));
+            FreeLibrary(_lib);
+
+            _is_read = true;
+        }
+
+        if ( _adjustWindowRectEx ) {
+            _adjustWindowRectEx(rect, (GetWindowStyle(handle) & ~WS_DLGFRAME), FALSE, 0, 96*dpiratio);
+        } else AdjustWindowRectEx(rect, (GetWindowStyle(handle) & ~WS_DLGFRAME), FALSE, 0);
+    }
+#endif
+
+    auto isLeftButtonPressed() -> bool {
+#ifdef Q_OS_LINUX
+        return check_button_state(Qt::LeftButton);
+#else
+        return (::GetKeyState(VK_LBUTTON) & 0x8000) != 0;
+#endif
+    }
+
+    auto constructFullscreenWidget(QWidget * panelwidget) -> QWidget *
+    {
+#if defined(_WIN32) && (QT_VERSION < QT_VERSION_CHECK(5, 10, 0))
+        QPoint pt = panelwidget->window()->mapToGlobal(panelwidget->pos());
+#else
+        QPoint pt = panelwidget->mapToGlobal(panelwidget->pos());
+#endif
+
+        CTabPanel * _panel = qobject_cast<CTabPanel *>(panelwidget);
+        QWidget * _parent = new QWidget;
+        _parent->setWindowIcon(Utils::appIcon());
+        _parent->setWindowTitle(_panel->data()->title());
+        _parent->showFullScreen();
+        _parent->setGeometry(QApplication::desktop()->screenGeometry(pt));
+
+        _panel->setParent(_parent);
+        _panel->show();
+        _panel->setGeometry(0,0,_parent->width(),_parent->height());
+
+        return _parent;
     }
 }
-#endif

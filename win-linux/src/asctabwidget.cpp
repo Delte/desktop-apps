@@ -51,11 +51,15 @@
 #include "utils.h"
 #include "cfilechecker.h"
 #include "canimatedicon.h"
+#include "ceditortools.h"
 
 #include "cascapplicationmanagerwrapper.h"
 #include "ctabundockevent.h"
+#include "OfficeFileFormats.h"
 
 #include "private/qtabbar_p.h"
+
+using namespace std;
 
 /*
  *
@@ -78,39 +82,39 @@ public:
 */
 
 COpenOptions::COpenOptions() :
-    type(etUndefined), id(-1)
+    srctype(etUndefined), id(-1)
 {}
 
 COpenOptions::COpenOptions(wstring _url_) :
     COpenOptions(_url_, etUndefined, -1)
 {}
 
-COpenOptions::COpenOptions(wstring _url_, AscEditorType _type_) :
-    COpenOptions(_url_, _type_, -1)
+COpenOptions::COpenOptions(wstring _url_, AscEditorType _srctype_) :
+    COpenOptions(_url_, _srctype_, -1)
 {}
 
-COpenOptions::COpenOptions(wstring _url_, AscEditorType _type_, int _id_) :
-    COpenOptions(QString(), _type_, QString::fromStdWString(_url_), _id_)
+COpenOptions::COpenOptions(wstring _url_, AscEditorType _srctype_, int _id_) :
+    COpenOptions(QString(), _srctype_, QString::fromStdWString(_url_), _id_)
 {}
 
-COpenOptions::COpenOptions(QString _name_, AscEditorType _type_, QString _url_) :
-    COpenOptions(_name_, _type_, _url_, -1)
+COpenOptions::COpenOptions(QString _name_, AscEditorType _srctype_, QString _url_) :
+    COpenOptions(_name_, _srctype_, _url_, -1)
 {}
 
-COpenOptions::COpenOptions(QString _name_, AscEditorType _type_, QString _url_, int _id_) :
+COpenOptions::COpenOptions(QString _name_, AscEditorType _srctype_, QString _url_, int _id_) :
     name(_name_)
-  , type(_type_)
+  , srctype(_srctype_)
   , url(Utils::replaceBackslash(_url_))
   , id(_id_)
   , wurl(url.toStdWString())
 {}
 
-COpenOptions::COpenOptions(QString _name_, AscEditorType _type_, std::wstring _url_, int _id_) :
-    COpenOptions(_name_, _type_, QString::fromStdWString(_url_), _id_)
+COpenOptions::COpenOptions(QString _name_, AscEditorType _srctype_, std::wstring _url_, int _id_) :
+    COpenOptions(_name_, _srctype_, QString::fromStdWString(_url_), _id_)
 {}
 
-COpenOptions::COpenOptions(QString _name_, AscEditorType _type_) :
-    COpenOptions(_name_, _type_, "")
+COpenOptions::COpenOptions(QString _name_, AscEditorType _srctype_) :
+    COpenOptions(_name_, _srctype_, "")
 {}
 
 /*
@@ -131,7 +135,6 @@ auto createTabPanel(QWidget * parent, CTabPanel * panel = nullptr) -> QWidget * 
 auto panelfromwidget(QWidget * panelwidget) -> CTabPanel * {
     return panelwidget->children().count() ? static_cast<CTabPanel *>(panelwidget->findChild<CTabPanel*>()) : nullptr;
 }
-
 
 CAscTabWidget::CAscTabWidget(QWidget *parent)
     : QTabWidget(parent)
@@ -196,15 +199,15 @@ CTabPanel * CAscTabWidget::panel(int index) const
     return _w->children().count() ? static_cast<CTabPanel *>(_w->findChild<CTabPanel*>()) : nullptr;
 }
 
-int CAscTabWidget::addEditor(COpenOptions& opts)
+int CAscTabWidget::addEditor(const COpenOptions& opts)
 {
-    if ( opts.url.isEmpty() && opts.type != etNewFile )
+    if ( opts.url.isEmpty() && opts.srctype != etNewFile )
         return -1;
 
     setProperty("empty", false);
 
     int file_format = 0;
-    if (opts.type == etLocalFile) {
+    if (opts.srctype == etLocalFile) {
         file_format = CCefViewEditor::GetFileFormat(opts.wurl);
         if (file_format == 0)
             /* TODO: show error for file format */
@@ -219,21 +222,17 @@ int CAscTabWidget::addEditor(COpenOptions& opts)
 
     int tab_index = -1;
     bool res_open = true;
-    if (opts.type == etLocalFile) {
-        pView->openLocalFile(opts.wurl, file_format);
-//        opts.type = etUndefined;
+    if (opts.srctype == etLocalFile) {
+        pView->openLocalFile(opts.wurl, file_format, L"");
     } else
-    if (opts.type == etRecoveryFile) {
+    if (opts.srctype == etRecoveryFile) {
         res_open = pView->openRecoverFile(opts.id);
-//        opts.type = etUndefined;
     } else
-    if (opts.type == etRecentFile) {
+    if (opts.srctype == etRecentFile) {
         res_open = pView->openRecentFile(opts.id);
-//        opts.type = etUndefined;
     } else
-    if (opts.type == etNewFile) {
-        pView->createLocalFile(opts.format, opts.name.toStdWString());
-//        opts.type = AscEditorType(opts.format);
+    if (opts.srctype == etNewFile) {
+        pView->createLocalFile(CEditorTools::editorTypeFromFormat(opts.format), opts.name.toStdWString());
     } else {
         pView->cef()->load(opts.wurl);
     }
@@ -241,12 +240,15 @@ int CAscTabWidget::addEditor(COpenOptions& opts)
     if (res_open) {
         CAscTabData * data = new CAscTabData(opts.name);
         data->setUrl(opts.wurl);
-        data->setIsLocal( opts.type == etLocalFile || opts.type == etNewFile ||
-                       (opts.type == etRecentFile && !CExistanceController::isFileRemote(opts.url)) );
+        data->setIsLocal( opts.srctype == etLocalFile || opts.srctype == etNewFile ||
+                       (opts.srctype == etRecentFile && !CExistanceController::isFileRemote(opts.url)) );
+
+        data->setContentType(CEditorTools::editorTypeFromFormat(opts.format));
+        data->setChanged(opts.srctype == etRecoveryFile);
 
         pView->setData(data);
-        tab_index = addTab(panelwidget, opts.name);
-        tabBar()->setTabToolTip(tab_index, opts.name);
+        tab_index = addTab(panelwidget, data->title());
+        tabBar()->setTabToolTip(tab_index, data->title());
         ((CTabBar *)tabBar())->tabStartLoading(tab_index);
 
         //TODO: test for safe remove
@@ -286,13 +288,6 @@ void CAscTabWidget::closeEditorByIndex(int index, bool checkmodified)
     closeEditor(index, checkmodified, true);
 }
 
-void CAscTabWidget::closeAllEditors()
-{
-    for (int i = tabBar()->count(); i-- > 0; ) {
-        closeEditor(i, false, false);
-    }
-}
-
 int CAscTabWidget::count(int type) const
 {
     if ( type < 0 )
@@ -307,15 +302,19 @@ int CAscTabWidget::count(int type) const
     }
 }
 
-int CAscTabWidget::count(const wstring& portal)
+int CAscTabWidget::count(const wstring& portal, bool exclude)
 {
     if ( portal.empty() )
         return QTabWidget::count();
     else {
         int _out(0);
         for (int i(count()); i-- > 0; ) {
-            if ( panel(i)->data()->url().find(portal) != wstring::npos )
+            if ( panel(i)->data()->url().find(portal) != wstring::npos ) {
+                if ( exclude && panel(i)->data()->isViewType(cvwtSimple) )
+                    continue;
+
                 ++_out;
+            }
         }
         return _out;
     }
@@ -335,7 +334,7 @@ bool CAscTabWidget::hasForPortal(const QString& portal)
     return false;
 }
 
-int CAscTabWidget::addPortal(const QString& url, const QString& name, const QString& provider)
+int CAscTabWidget::addPortal(const QString& url, const QString& name, const QString& provider, const QString& entrypage)
 {
     if ( url.isEmpty() ) return -1;
 
@@ -343,7 +342,7 @@ int CAscTabWidget::addPortal(const QString& url, const QString& name, const QStr
 
     QString args, _url = url;
     if ( provider == "asc" && !_url.contains(QRegularExpression("desktop=true")) )
-        args.append("/products/files/?desktop=true");
+        args.append("/?desktop=true");
     else {
         QRegularExpression _re("^((?:https?:\\/{2})?[^\\s\\?]+)(\\?[^\\s]+)?", QRegularExpression::CaseInsensitiveOption);
         QRegularExpressionMatch _re_match = _re.match(url);
@@ -360,7 +359,7 @@ int CAscTabWidget::addPortal(const QString& url, const QString& name, const QStr
     pView->setGeometry(0,0, size().width(), size().height() - tabBar()->height());
     pView->initAsSimple();
     pView->cef()->SetExternalCloud(provider.toStdWString());
-    pView->cef()->load((_url + args).toStdWString());
+    pView->cef()->load((_url + entrypage + args).toStdWString());
 
     QString portal = name.isEmpty() ? Utils::getPortalName(url) : name;
 
@@ -398,7 +397,7 @@ int  CAscTabWidget::addOAuthPortal(const QString& portal, const QString& type, c
         pView->cef()->SetExternalCloud(service.toStdWString());
 
         QString _postfix;
-        if (service == "asc") _postfix = "/products/files/?desktop=true";
+        if (service == "asc") _postfix = "/Products/Files/?desktop=true";
         pView->cef()->load((portal + _postfix).toStdWString());
     }
 
@@ -429,8 +428,7 @@ int CAscTabWidget::insertPanel(QWidget * panel, int index)
         QWidget * panelwidget = createTabPanel(this, _panel);
 
         tabindex = insertTab(index, panelwidget, tabdata->title());
-        tabBar()->setTabToolTip(tabindex, !tabdata->url().empty() ?
-                                QString::fromStdWString(tabdata->url()) : tabdata->title() );
+        tabBar()->setTabToolTip(tabindex, tabdata->title() );
     }
 
     return tabindex;
@@ -547,6 +545,11 @@ void CAscTabWidget::updateTabIcon(int index)
                 tab_theme = CTabBar::Light;
             } else {
                 tab_type = pEditor->GetEditorType();
+                switch ( tab_type ) {
+                case etPresentation: case etSpreadsheet: case etDocument: break;
+                default: tab_type = panel(index)->data()->contentType(); break;
+                }
+
                 switch ( tab_type ) {
                 case etPresentation: tab_color = TAB_COLOR_PRESENTATION; break;
                 case etSpreadsheet: tab_color = TAB_COLOR_SPREADSHEET; break;
@@ -688,21 +691,22 @@ int CAscTabWidget::openCloudDocument(COpenOptions& opts, bool select, bool force
     return tabIndex;
 }
 
-int CAscTabWidget::openLocalDocument(COpenOptions& opts, bool select, bool forcenew)
+int CAscTabWidget::openLocalDocument(const COpenOptions& options, bool select, bool forcenew)
 {
     int tabIndex = -1;
-    if ( !forcenew && opts.type != etRecoveryFile ) {
-        CCefView * view = AscAppManager::getInstance().GetViewByRecentId( opts.id );
+    if ( !forcenew && options.srctype != etRecoveryFile ) {
+        CCefView * view = AscAppManager::getInstance().GetViewByRecentId( options.id );
         if ( view ) {
             tabIndex = tabIndexByView(view->GetId());
         } else {
-            tabIndex = tabIndexByUrl(opts.wurl);
+            tabIndex = tabIndexByUrl(options.wurl);
         }
     }
 
     if (tabIndex < 0){
-        opts.name = QFileInfo(opts.url).fileName();
-        tabIndex = addEditor(opts);
+        COpenOptions _opts{options};
+        _opts.name = QFileInfo(options.url).fileName();
+        tabIndex = addEditor(_opts);
 
         if (!(tabIndex < 0))
             updateIcons();
@@ -716,13 +720,13 @@ int CAscTabWidget::openLocalDocument(COpenOptions& opts, bool select, bool force
     return tabIndex;
 }
 
-int CAscTabWidget::openPortal(const QString& url, const QString& provider)
+int CAscTabWidget::openPortal(const QString& url, const QString& provider, const QString& entrypage)
 {
     QString portal_name = Utils::getPortalName(url);
 
     int tabIndex = tabIndexByTitle(portal_name, etPortal);
     if (tabIndex < 0) {
-        tabIndex = addPortal(url, "", provider);
+        tabIndex = addPortal(url, "", provider, entrypage);
     } else {
 //        updatePortal(tabIndex, url);
     }
@@ -736,7 +740,9 @@ bool CAscTabWidget::updatePortal(int index,const QString& url)
         CTabPanel * _panel = panel(index);
 
         if ( _panel->data()->contentType() == etPortal ) {
-            _panel->cef()->load(url.toStdWString());
+            if ( url.isEmpty() )
+                _panel->cef()->load(_panel->data()->url());
+            else _panel->cef()->load(url.toStdWString());
 
             return true;
         }
@@ -788,7 +794,7 @@ void CAscTabWidget::applyDocumentChanging(int viewId, const QString& name, const
         }
 
         tabBar()->setTabText(tabIndex, doc->title());
-        tabBar()->setTabToolTip(tabIndex, path.isEmpty() ? name : path);
+        tabBar()->setTabToolTip(tabIndex, path.isEmpty() ? doc->title() : path);
     }
 }
 
@@ -886,7 +892,7 @@ void CAscTabWidget::setEditorOptions(int id, const wstring& option)
 
 void CAscTabWidget::setFocusedView(int index)
 {
-    if (!m_pMainWidget->isHidden())
+    if (!isActive())
     {
         if (!QCefView::IsSupportLayers())
         {
@@ -1105,20 +1111,23 @@ bool CAscTabWidget::isProcessed(int index) const
 
 void CAscTabWidget::setFullScreen(bool apply, int id)
 {
-    QWidget * fsWidget;
+    CTabPanel * fsWidget;
     static QMetaObject::Connection cefConnection;
     if (!apply) {
         if (m_dataFullScreen) {
             disconnect(cefConnection);
 
 #ifdef _LINUX
-            AscAppManager::topWindow()->show();
+            AscAppManager::topWindow()->show(false);
+#else
+            AscAppManager::topWindow()->show(false);
 #endif
 
             int index = m_dataFullScreen->tabindex();
-            fsWidget = m_dataFullScreen->widget();
+            fsWidget = qobject_cast<CTabPanel *>(m_dataFullScreen->widget());
             widget(index)->layout()->addWidget(fsWidget);
 
+            RELEASEOBJECT(m_dataFullScreen->parent)
             RELEASEOBJECT(m_dataFullScreen)
 
 //            updateGeometry();
@@ -1132,31 +1141,23 @@ void CAscTabWidget::setFullScreen(bool apply, int id)
         if ( fsWidget ) {
             m_dataFullScreen = new CFullScreenData(tabIndex, fsWidget);
 
-            fsWidget->setWindowIcon(Utils::appIcon());
-            fsWidget->setParent(nullptr);
-#ifdef _WIN32
-#else
-            fsWidget->setWindowFlags(Qt::FramelessWindowHint);
+            m_dataFullScreen->parent = WindowHelper::constructFullscreenWidget(fsWidget);
+            fsWidget->view()->setFocusToCef();
             AscAppManager::topWindow()->hide();
-#endif
-            ((CTabPanel *)fsWidget)->showFullScreen();
-            ((CTabPanel *)fsWidget)->view()->setFocusToCef();
 
-            cefConnection = connect((CTabPanel *)fsWidget, &CTabPanel::closePanel, [=](QCloseEvent * e){
+            cefConnection = connect(fsWidget, &CTabPanel::closePanel, [=](QCloseEvent * e){
                 NSEditorApi::CAscExecCommandJS * pCommand = new NSEditorApi::CAscExecCommandJS;
                 pCommand->put_Command(L"editor:stopDemonstration");
 
                 NSEditorApi::CAscMenuEvent * pEvent = new NSEditorApi::CAscMenuEvent(ASC_MENU_EVENT_TYPE_CEF_EDITOR_EXECUTE_COMMAND);
                 pEvent->m_pData = pCommand;
-                ((CTabPanel *)fsWidget)->cef()->Apply(pEvent);
+                fsWidget->cef()->Apply(pEvent);
 
                 e->ignore();
                 // TODO: associate panel with reporter window and close both simultaneously
                 QTimer::singleShot(10, [=] {emit tabCloseRequested(m_dataFullScreen->tabindex());});
 //                emit closeAppRequest();
             });
-
-            fsWidget->setGeometry(QApplication::desktop()->screenGeometry(mapToGlobal(pos())));
         }
     }
 }

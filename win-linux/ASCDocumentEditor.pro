@@ -8,13 +8,13 @@ INCLUDEPATH += $$PWD/src/prop \
                 $$PWD/src
 
 HEADERS += \
+    src/prop/csplash_p.h \
     src/prop/defines_p.h \
+    src/prop/cascapplicationmanagerwrapperintf.h \
     src/prop/version_p.h
 
 SOURCES += \
-    src/prop/csplash_p.cpp \
     src/prop/cmainpanelimpl.cpp \
-    src/prop/cascapplicationmanagerwrapper_private.h \
     src/prop/utils.cpp
 
 RC_FILE = $$PWD/version.rc
@@ -22,11 +22,6 @@ RC_FILE = $$PWD/version.rc
 DEFINES += __DONT_WRITE_IN_APP_TITLE
 
 message($$PLATFORM_BUILD)
-
-linux-g++ {
-    DEFINES += _GLIBCXX_USE_CXX11_ABI=0
-    message($$PLATFORM_BUILD)
-}
 
 win32 {    
     #CONFIG += updmodule

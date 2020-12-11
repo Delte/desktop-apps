@@ -41,6 +41,10 @@
 
 #define FORCE_LINUX_CUSTOMWINDOW_MARGINS
 
+namespace WindowHelper {
+    auto check_button_state(Qt::MouseButton b) -> bool;
+}
+
 class CX11Decoration
 {
 public:
@@ -59,11 +63,12 @@ public:
     void setMaximized(bool);
     void raiseWindow();
 
-    static int devicePixelRatio();
     static int customWindowBorderWith();
 
-    bool checkButtonState(Qt::MouseButton);
     int m_nDirection;
+protected:
+    int dpi_ratio = 1;
+    void onDpiChanged(int);
 
 private:
     QWidget * m_window;

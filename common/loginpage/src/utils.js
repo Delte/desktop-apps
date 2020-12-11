@@ -51,6 +51,21 @@
     });
 })(jQuery);
 
+/*
+*  @winxpsupport
+*/
++function polyfill_object_entries(){
+    if ( !Object.entries )
+        Object.entries = function(obj){
+            let ownProps = Object.keys(obj),
+                i = ownProps.length,
+            resArray = new Array(i); // preallocate the Array
+
+        while (i--) resArray[i] = [ownProps[i], obj[ownProps[i]]];
+        return resArray;
+    };
+}();
+
 var utils = {};
 window.utils = utils;
 
@@ -261,8 +276,9 @@ utils.fn.parseRecent = function(arr, out = 'files') {
             path = _f_.path.slice(0, fn.length - name.length - 1);
 
             _files_arr.push({
-                id: _f_.id,
-                type: utils.parseFileFormat(_f_.type),
+                fileid: _f_.id,
+                type: _f_.type,
+                format: utils.parseFileFormat(_f_.type),
                 name: name,
                 descr: path,
                 date: _f_.modifyed
@@ -355,3 +371,4 @@ function getUrlParams() {
 }
 
 utils.inParams = getUrlParams();
+utils.brandCheck = opts => true;

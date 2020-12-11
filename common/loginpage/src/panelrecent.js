@@ -98,7 +98,7 @@
 
             var _tpl = `<tr${id}>
                           <td class="row-cell cicon">
-                            <span class="icon ${info.type=='folder'?'img-before-el':'img-format'} ${info.type}" />
+                            <span class="icon ${info.type=='folder'?'img-before-el folder':`img-format ${info.format}`}" />
                           </td>
                           <td class="row-cell cname">
                             <p class="name primary">${info.name}</p>
@@ -211,13 +211,13 @@
                 // if ( !model.islocal && !app.controller.portals.isConnected(_portal) ) {
                     // app.controller.portals.authorizeOn(_portal, {type: 'fileid', id: model.fileid});
                 // } else {
-                    openFile(OPEN_FILE_RECENT, model.fileid);
+                    openFile(OPEN_FILE_RECENT, model);
                 // }
             });
 
             collectionRecents.events.contextmenu.attach(function(collection, model, e){
                 ppmenu.actionlist = 'recent';
-                ppmenu.hideItem('files:explore', !model.islocal && !model.dir);
+                ppmenu.hideItem('files:explore', (!model.islocal && !model.dir) || !model.exist);
                 ppmenu.show({left: e.clientX, top: e.clientY}, model);
             });
 
@@ -238,7 +238,7 @@
                 collection.list.append( this.view.listitemtemplate(model) );
             });
             collectionRecovers.events.click.attach((collection, model)=>{
-                openFile(OPEN_FILE_RECOVERY, model.fileid);
+                openFile(OPEN_FILE_RECOVERY, model);
             });
             collectionRecovers.events.contextmenu.attach((collection, model, e)=>{
                 ppmenu.actionlist = 'recovery';
@@ -250,6 +250,7 @@
         function _init_ppmenu() {
             ppmenu = new Menu({
                 id: 'pp-menu-files',
+                bottomlimitoffset: 10,
                 items: [{
                     caption: utils.Lang.menuFileOpen,
                     action: 'files:open'
@@ -272,8 +273,8 @@
         function _on_context_menu(menu, action, data) {
             if (/\:open/.test(action)) {
                 menu.actionlist == 'recent' ?
-                    openFile(OPEN_FILE_RECENT, data.fileid) :
-                    openFile(OPEN_FILE_RECOVERY, data.fileid);
+                    openFile(OPEN_FILE_RECENT, data) :
+                    openFile(OPEN_FILE_RECOVERY, data);
             } else
             if (/\:clear/.test(action)) {
                 menu.actionlist == 'recent' ?
@@ -281,9 +282,12 @@
                     window.sdk.LocalFileRemoveAllRecovers();
             } else
             if (/\:forget/.test(action)) {
-                menu.actionlist == 'recent' ?
-                    window.sdk.LocalFileRemoveRecent(parseInt(data.fileid)) :
-                    window.sdk.LocalFileRemoveRecover(parseInt(data.fileid));
+                $('#' + data.uid, this.view.$panel).addClass('lost');
+                setTimeout(e => {
+                    menu.actionlist == 'recent' ?
+                        window.sdk.LocalFileRemoveRecent(parseInt(data.fileid)) :
+                        window.sdk.LocalFileRemoveRecover(parseInt(data.fileid));}
+                , 300); // 300ms - duration of item's 'collapse' transition
             } else
             if (/\:explore/.test(action)) {
                 if (menu.actionlist == 'recent') {
@@ -338,10 +342,15 @@
                 CommonEvents.on('portal:authorized', (data)=>{
                     if ( data.type == 'fileid' ) {
                         let fileid = data.id;
-                        openFile(OPEN_FILE_RECENT, fileid);
+                        // openFile(OPEN_FILE_RECENT, fileid);
                     }
 
                     console.log('portal authorized');
+                });
+
+                $('#box-recent .table-box').scroll(e => {
+                    if ( Menu.opened )
+                        Menu.closeAll();
                 });
 
                 return this;
